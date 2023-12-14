@@ -1,0 +1,10 @@
+setup.py
+src/__init__.py
+src/create_categories.py
+src/utils/__init__.py
+src/utils/kabsch2D.py
+src/utils/utils.py
+thesis.egg-info/PKG-INFO
+thesis.egg-info/SOURCES.txt
+thesis.egg-info/dependency_links.txt
+thesis.egg-info/top_level.txt

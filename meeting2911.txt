@@ -1,0 +1,38 @@
+betas_split 
+
+coming from all session in 
+focus on the train/test set 
+
+native_surface is all of it together - get mean? 
+condition = labels 
+
+mds: list of coordinates, -1 to 1, rotate around 0 
+minize Sum of square of difference 
+
+blobs of color 
+
+mds take all and minize sum of square difference (rotation/flip) 
+linearly solvable 
+(x * sin(t) )squared +( y * cos(t) )squared  -> error term 
+
+simplify it 
+
+kabsch https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.align_vectors.html 
+
+easy to flip, x-x 
+solve it twice for each pair? 
+
+all pairs -> return error as well 
+
+choose one rotation that is the easiest to work with 
+so ex: two ends, error will be huge. Intermediate matrix will have lower error (V1 to V4). Find one where it is the smallest. So rotate everything for example V4 (if overall
+error is smallest). 
+Luis: area is sampling from itself. If we know the flip, we can flip Luis' model. Apply rotation to tuning models. Then look at prefered position (flatmaps). Bring ROI to same
+space. 
+So pull out how maps are co rotated. 
+
+Second thing: Look at every area sampling from every other area (change mds space we're fitting in). Linearly fit gaussian function to data (predict beta of every voxel). 
+Gaussian fit to amplitudes. 
+Fit tuning function to all ROI to all ROI. -> explain reponse of V4 based on others 
+
+Instead of saying which ROI is it: which ROI are we sampling from. x, y, best ROI and cross validated goodness of fit. 

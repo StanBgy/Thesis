@@ -1,0 +1,19 @@
+check correlation betas
+
+tSNE more interpretable 
+MDS might be better overall 
+
+make sure it works, but MDS keep normal distrubition so its a better choice (maybe)
+
+try rotation flipped (by 180) 
+
+
+Figure U out 
+
+
+Figure out which ROI matrix we want to have has reference 
+lowest total error (probably V3, V4) 
+
+Run something?
+
+15/01 at 2 pm
