@@ -3,10 +3,11 @@ import nsd_access
 import numpy as np 
 from utils.utils import betas_dir, nsd_dir, proj_dir
 from nsddatapaper_rsa.utils.nsd_get_data import get_conditions, get_betas 
+from nsddatapaper_rsa.utils.utils import average_over_conditions
 from nsd_access import NSDAccess
 import nibabel as nib
 
-n_jobs = 2 # Local machine, don't go too crazy
+n_jobs =12 
 n_sessions = 40
 n_subjects = 1 # only try sub 1 here
 
@@ -51,7 +52,7 @@ conditions_sampled = conditions[conditions_bool]
 sample = np.unique(conditions[conditions_bool])
 assert sample.shape[0] == 10000
 
-betas_mean_file = os.path.join(outpath, f'{subs[0]}_betas_list_{targetspace}_averaged.npy') 
+betas_mean_file = os.path.join(outpath, f'{subs[0]}_betas_list_{targetspace}_concat.npy') 
 if not os.path.exists(betas_mean_file):
     betas_mean = get_betas(
         nsd_dir, 
@@ -62,16 +63,20 @@ if not os.path.exists(betas_mean_file):
     print(f'concatenating betas for {subs[0]}')
     betas_mean = np.concatenate(betas_mean, axis=1).astype(np.float32)
 
-    print(f'Now averaging them')
-    betas_mean = average_over_conditions(
-        betas_mean,
-        conditions,
-        conditions_sampled
-    ).astype(np.float32)
+    print(f'saving concatenated betas')
 
-    print(f'Saving conditions averaged betas')
     np.save(betas_mean_file, betas_mean)
 
+    print(f'Now averaging them')
+   # betas_mean = average_over_conditions(
+    #    betas_mean,
+     #   conditions,
+    #    conditions_sampled
+    #).astype(np.float32)
+
+    #print(f'Saving conditions averaged betas')
+    #np.save(betas_mean_file, betas_mean)
+
 else:
-    print(f'loading betas for {sub}')
+    print(f'loading betas for {subs[0]}')
     betas_mean = np.load(betas_mean_file, allow_pickle=True)

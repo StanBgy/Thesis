@@ -108,5 +108,20 @@ def error(rotated_source: ndarray, target: ndarray, t=None) -> float:
         diff = rotated_source - target
     return (diff * diff).sum()
 
+def avg_distance(rotated_source: ndarray, target: ndarray, t=None) -> float:
+    """
+    Returns the average distance between two arrays: 
+    computes the euclidian distances between two arrays of same size, and then give the .mean() of the array 
+    containig differences"""
+    if rotated_source.shape != target.shape:  # raise an error if shapes are different
+        raise ValueError(f'Both array should be of same shape,  {rotated_source.shape} is not compatible with {target.shape}')
+    if t is not None: 
+        diff = rotated_source + t - target
+    else: 
+        diff = rotated_source - target
+    distances = np.sqrt(np.sum(diff**2, axis=1))
+    
+    return distances.mean()
+
 
     
