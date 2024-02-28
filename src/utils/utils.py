@@ -8,7 +8,7 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-base_dir = '/media/Working/stan-thesis/'
+base_dir = '/home/stan/thesis-repo/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
@@ -34,6 +34,8 @@ subj_list = [sub[0] for sub in list(subjects_sessions.values())]
 rois = {'V1': 1, 'V2': 2, 'V3': 3, 'hV4': 4, 'VO-1': 5, 'VO-2': 6,
  'PHC-1': 7, 'PHC-2': 8, 'LO-1': 9, 'LO-2': 10, 'TO-1': 11, 'TO-2': 12
 }
+# Reversed: 
+sior = {v:k for k, v in rois.items()}
 
 params = {'random': True, 
           'initial': (np.array([-0.4, -0.4, 0.01, 0.1, - 2]), np.array([0.4, 0.4, 2, 10, 2])), 
@@ -41,3 +43,5 @@ params = {'random': True,
            'loss': 'linear',
            'method': 'trf'
         }
+
+models = ['oself']

@@ -2,6 +2,7 @@ from load_betas import load_betas
 from create_rdm import create_rdm
 from apply_rotation import apply_rotation
 from fit_params import gaussian_fit
+from create_models import create_models
 from utils.utils import *
 
 mode = "averaged"
@@ -20,6 +21,6 @@ if __name__ == "__main__":
     gaussian_fit(subj_list, rois, params, rotated=True, mode=mode) # Need to update to add split=True version 
 
     # Create model 
-    #
-    # Export model 
+    create_models(subj_list, sior, rois, models, mode=mode, rotated=True)
+    # Export model will stay as a notebook for now 
 

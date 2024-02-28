@@ -14,15 +14,26 @@ Here, we fit the gaussian curve to each voxel
 """
 
 def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
-
+    targetspace = 'nativesurface'
     columns = ["x0", "y0", "sigma", "slope", "intercept"]
     initial = params['initial']
     bounds = params['bounds']
 
     for i, subj in enumerate(subj_list):
         print(f'GETTING BETAS FOR SUBJ0{i+1}')
-        betas_file = os.path.join(betas_dir , f'{subj}_betas_list_nativesurface_{mode}.npy') # could parametertize the targetsurface but eh
+        betas_file = os.path.join(betas_dir , f'{subj}_betas_list_{targetspace}_{mode}.npy') # could parametertize the targetsurface but eh
         betas = np.load(betas_file, allow_pickle=False).astype(np.float32).T
+
+        if split == "train":
+            betas_test_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_test.npy')
+            print(f'LOADING TEST BETAS FOR SUBJ0{i+1}')
+            betas_test = np.load(betas_test_file, allow_pickle=False).astype(np.float32).T
+
+            train_test_mask_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_train_test_mask.npy')
+            print(f'LOADING TRAIN TEST MSAK FOR SUBJ0{i+1}')
+            train_test_mask = np.load(train_test_mask_file, allow_pickle=False).T.astype(bool)
+
+
         print(f'Starting fitting for subj0{i}')
         n_betas, n_voxels = betas.shape
         for roi in rois.keys():
@@ -83,8 +94,15 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
             roi_res = np.sum((pred_activity - betas)**2, axis=0)
             roi_tot = sum((betas- np.tile(betas.mean(axis=0), (n_betas, 1)))**2).T
 
-             ## Maybe include split here
-
+            ## Maybe include split Here
+            if mode == "train":
+                mds_test = mds[:, train_test_mask]
+                def gaus_roi_test(fits):
+                    return gaussian_2d_curve_pol(mds_test, *flips)
+                pred_activity_test = fits_roi.apply(gaus_roi_test, axis=1)
+                pred_activity_test = np.array([np.array(x) for x in pred_activity_test]).T
+                roi_res_test = np.sum((pred_activity_test - betas_test)**2, axis=0)
+                roi_rot_test = sum((betas_test - np.tile(betas_test.mean(axis=0), (sum(train_test_mask), 1)))**2).T
             fits_roi["var_explained"] = 1 - roi_res / roi_tot
             fits_roi["mds_ecc"] = (fits_roi.x0 ** 2 + fits_roi.y0[1] ** 2) ** (1/2)
             fits_roi["mds_ang"] = np.arctan2(fits_roi.x0/bounds[1][0], fits_roi.y0/bounds[1][1])
