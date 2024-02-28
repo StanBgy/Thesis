@@ -21,7 +21,7 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
 
     for i, subj in enumerate(subj_list):
         print(f'GETTING BETAS FOR SUBJ0{i+1}')
-        betas_file = os.path.join(betas_dir , f'{subj}_betas_list_nativesurface_{mode}.npy') # could parametertize the targetsurface but eh
+        betas_file = os.path.join(betas_dir , f'{subj}_betas_list_nativesurface_{mode}.npy')
         betas = np.load(betas_file, allow_pickle=False).astype(np.float32).T
         print(f'Starting fitting for subj0{i}')
         n_betas, n_voxels = betas.shape
@@ -30,14 +30,14 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
             if rotated:
                 mds_file = os.path.join(mds_dir, subj, f'{subj}_{roi}_mds_{mode}.npy')
             if not rotated:
-                mds_file = os.path.join(mds_dir, subj, f'{subj}_{roi}_MDS_rotated_VO-1_{mode}.npy')
+                mds_file = os.path.join(mds_dir, subj, f'{subj}_{roi}_MDS_rotated_VO-2_{mode}.npy')
 
             mds = np.load(mds_file, allow_pickle=True).astype(np.float32).T
 
             if rotated:
-                fit_file = os.path.join(fits_dir, 'fits_rotated', subj, f'fits_{subj}_{mode}_{roi}_rotated.npy')
+                fit_file = os.path.join(fits_dir, 'fits_rotated', f'fits_{subj}_{mode}_{roi}_rotated.npy')
             if not rotated:
-                fit_file = os.path.join(fits_dir, 'fits_not_rotated', subj, f'fits_{subj}_{mode}_{roi}_notrotated.npy')
+                fit_file = os.path.join(fits_dir, 'fits_rotated', f'fits_{subj}_{mode}_{roi}_notrotated.npy')
             
             if os.path.exists(fit_file):
                 print(f'\t\t\ŧskipping {roi}, already exists')

@@ -1,10 +1,9 @@
 import os
 import nsd_access 
 import numpy as np 
-from utils.utils import betas_dir, nsd_dir, proj_dir, mask_dir, sessions
+from utils.utils import betas_dir, nsd_dir, proj_dir, sessions
 from utils.split_condition import split_conditions
 from nsddatapaper_rsa.utils.nsd_get_data import get_conditions, get_betas 
-from nsddatapaper_rsa.utils.utils import average_over_conditions
 from nsd_access import NSDAccess
 import nibabel as nib
 
@@ -34,14 +33,10 @@ targetspace = 'nativesurface'
 
 
 # subjects
-#subs = ['subj0{}'.format(x+1) for x in range(n_subjects)]
+subs = ['subj0{}'.format(x+1) for x in range(n_subjects)]
 
-def load_betas(subs, sessions, targetspace, mode='averaged'):
+def load_betas(subs, sessions, targetspace, split=None):
     for i, sub in enumerate(subs):
-        maskdata_file = os.path.join(mask_dir, sub, f'{sub}.testrois.npy')
-        maskdata_long = np.load(maskdata_file,allow_pickle=True)
-        maskdata_long_bool = (maskdata_long > 0)
-        maskdata_long_bool
         conditions = get_conditions(nsd_dir, sub, sessions[i])
 
         conditions = np.asarray(conditions).ravel()
@@ -53,9 +48,9 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
     # find the subject's unique condition list (sample pool)
         sample = np.unique(conditions[conditions_bool])
 
-        if mode == 'averaged': 
+        if not split: 
 
-            betas_mean_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_{mode}.npy') 
+            betas_mean_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_averaged.npy') 
 
             if not os.path.exists(betas_mean_file):
 
@@ -63,7 +58,6 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
                     nsd_dir, 
                     sub,
                     sessions[i],
-                    mask=maskdata_long_bool,
                     targetspace=targetspace,
                 )
                 print(f'concatenating betas for {subs[0]}')
@@ -84,7 +78,7 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
                 betas_mean = np.load(betas_mean_file, allow_pickle=True)
         
 
-        if mode == "train":
+        if split:
             # not averaged over conditions? 
             betas_train_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_train.npy')
             betas_test_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_test.npy')

@@ -3,7 +3,7 @@ import copy
 import pandas as pd
 import numpy as np
 from utils.kabsch2D import * 
-from utils.utils import * 
+from utils.utils import *
 
 """
 Utils functions for the flips 
@@ -25,7 +25,7 @@ and another one with ranks and their actual values
 """
 
 
-def create_rotation_df(subj, rois, split=False, random=True):
+def create_rotation_df(subj, rois, random=True, mode='averaged'):
     cols = ['source', 'base', 'target', 'U', 'distance']
     comparisions = (len(rois) * (len(rois)-1)) * 2 
     if random: comparisions += 1 
@@ -37,18 +37,19 @@ def create_rotation_df(subj, rois, split=False, random=True):
         x +=1
     for roi_source in rois.keys():
 
-        mds_source_file = os.path.join(mds_dir, subj, f'{subj}_40_{roi_source}_mds.npy') # REMEMBER TO RENAME THAT 
+        mds_source_file = os.path.join(mds_dir, subj, f'{subj}_{roi_source}_mds_{mode}.npy') # REMEMBER TO RENAME THAT 
         mds_source = np.load(mds_source_file, allow_pickle=True)
         
         for roi_target in rois.keys():
             if roi_source != roi_target:
 
-                mds_target_file = os.path.join(mds_dir, subj, f'{subj}_40_{roi_target}_mds.npy')
+                mds_target_file = os.path.join(mds_dir, subj, f'{subj}_{roi_target}_mds_{mode}.npy')
                 mds_target = np.load(mds_target_file, allow_pickle=True)
-                rotations[i, 1] = roi_target
 
                 # there is probably a smarter way of doing that, but for now, it works
                 for j in range(x): # 0 is normal, 1 flipped, 2 random
+                    rotations[i, 1] = roi_target
+
 
                     if j == 1:
                         mds_target = np.dot(mds_target, np.array([[-1, 0], [0, 1]]))  # that little array should do the work 
@@ -117,10 +118,10 @@ def get_ranking(df, return_mean=False, only_filter=False):
 
 
 
-def get_rank_dict(subj_list, rois, split=False, random=True):
+def get_rank_dict(subj_list, rois, mode='averaged', random=True):
     dict, dict_values = {}, {}
     for i in range(len(subj_list)):
-        rotations_df = create_rotation_df(subj=subj_list[i], rois=rois, split=split, random=random)
+        rotations_df = create_rotation_df(subj=subj_list[i], rois=rois, mode=mode, random=random)
       #  print(rotations_df)
         rank = get_ranking(rotations_df)
         if random:
@@ -141,10 +142,10 @@ def get_distances(df, rois):
     need for Wilocoxon test """
     cols = list(rois.values())
     distances = np.zeros((len(cols), len(cols)), dtype=object)
-    print(distances.shape)
     for roi_source, i in rois.items():
-        print(i)
         for roi_target, j in rois.items():
-            distances[i-1, j-1] = df.loc[(df["source"] == roi_source) & (df["base"] == roi_target)]['distance'].values[0]
+            roi_distance = df.loc[(df["source"] == roi_source) & (df["base"] == roi_target)]["distance"].values
+            if len(roi_distance) > 0:
+                distances[i-1, j-1] = roi_distance[0]
 
     return distances

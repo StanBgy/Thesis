@@ -19,11 +19,14 @@ Then, we used these RDM (or ones previously computed) to get the corresponding M
 """
 
 
-def create_rdm(list_subj, mode='averaged'):
+def create_rdm(list_subj, split=False):
 
     targetspace = "nativesurface"
-
-    for i, sub in enumerate(list_subj):
+    if split:
+        mode = "train"
+    else: 
+        mode = "averaged"
+    for sub, i in enumerate(list_subj):
         start_sub = time.time()
         print(f'Enter {sub} at {time.strftime("%H:%M:%S", time.gmtime(start_sub))}')
 

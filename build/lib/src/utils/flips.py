@@ -25,7 +25,7 @@ and another one with ranks and their actual values
 """
 
 
-def create_rotation_df(subj, rois, random=True, mode='averaged'):
+def create_rotation_df(subj, rois, split=False, random=True):
     cols = ['source', 'base', 'target', 'U', 'distance']
     comparisions = (len(rois) * (len(rois)-1)) * 2 
     if random: comparisions += 1 
@@ -37,13 +37,13 @@ def create_rotation_df(subj, rois, random=True, mode='averaged'):
         x +=1
     for roi_source in rois.keys():
 
-        mds_source_file = os.path.join(mds_dir, subj, f'{subj}_{roi_source}_mds_{mode}.npy') # REMEMBER TO RENAME THAT 
+        mds_source_file = os.path.join(mds_dir, subj, f'{subj}_40_{roi_source}_mds.npy') # REMEMBER TO RENAME THAT 
         mds_source = np.load(mds_source_file, allow_pickle=True)
         
         for roi_target in rois.keys():
             if roi_source != roi_target:
 
-                mds_target_file = os.path.join(mds_dir, subj, f'{subj}_{roi_target}_mds_{mode}.npy')
+                mds_target_file = os.path.join(mds_dir, subj, f'{subj}_40_{roi_target}_mds.npy')
                 mds_target = np.load(mds_target_file, allow_pickle=True)
 
                 # there is probably a smarter way of doing that, but for now, it works
@@ -118,10 +118,10 @@ def get_ranking(df, return_mean=False, only_filter=False):
 
 
 
-def get_rank_dict(subj_list, rois, mode='averaged', random=True):
+def get_rank_dict(subj_list, rois, split=False, random=True):
     dict, dict_values = {}, {}
     for i in range(len(subj_list)):
-        rotations_df = create_rotation_df(subj=subj_list[i], rois=rois, mode=mode, random=random)
+        rotations_df = create_rotation_df(subj=subj_list[i], rois=rois, split=split, random=random)
       #  print(rotations_df)
         rank = get_ranking(rotations_df)
         if random:

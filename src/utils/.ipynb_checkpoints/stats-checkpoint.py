@@ -5,7 +5,7 @@ from scipy import stats
 from scipy.sparse import random
 from utils.utils import param_dir
 
-from src.utils.flips import create_rotation_df, get_distances, get_ranking 
+from utils.flips import * 
 
 """
 Here I will store all my function necessary for statistical anaylsis, 
@@ -56,7 +56,7 @@ def parametric_test(subj_list, rois, iterations):
             df_param.to_csv(param_file_name, index=False)
     
 
-def wilcoxon_test(subj_list, rois):
+def wilcoxon_test(subj_list, rois, mode='averaged'):
     """
     compute the array of all distances between all ROIS and all participants
     Then compute the T and P value between each ROI pairs by taking all participants' values"""
@@ -69,9 +69,10 @@ def wilcoxon_test(subj_list, rois):
     p_values = np.ones((len(cols), len(cols)),  dtype=object)
     T_values_df = pd.DataFrame(T_values, columns =cols, index=cols)
     p_values_df = pd.DataFrame(p_values, columns= cols, index=cols)
+    median_df = pd.DataFrame(T_values, columns=cols, index=cols)
 
     for i, sub in enumerate(subj_list):
-        distance_df = create_rotation_df(sub, rois, random=False)
+        distance_df = create_rotation_df(sub, rois, random=False, mode=mode)
         distance[i] = get_distances(distance_df, rois)
 
     for i in ints: 
@@ -81,15 +82,18 @@ def wilcoxon_test(subj_list, rois):
             if i == j:
                 continue # skip when it is the same, but I might want to remove that 
 
-            x = np.delete(arr, (i, j), axis = 1)[:, :, i].flatten() # this grabs all the corresponding columns, delete the unwanted values 
+            x = np.delete(distance, (i, j), axis = 1)[:, :, i].flatten() # this grabs all the corresponding columns, delete the unwanted values 
             # being i and j, and then flatten it onto 1D
-            y = np.delete(arr, (i, j), axis = 1)[:, :, j].flatten()
+            y = np.delete(distance, (i, j), axis = 1)[:, :, j].flatten()
 
-            res = stats.wilcoxon(x, y)
+            x -= y
+            # print median of the difference 
+            # make a table 
+            median_df.iloc[i, j] = np.median(x)
+
+            res = stats.wilcoxon(x, y) # change that to output Z (approx) 
+            ### compare it to matlab 
             T_values_df.iloc[i, j] = res.statistic
             p_values_df.iloc[i, j] = res.pvalue
 
-    return T_values_df, p_values_df
-
-
-
+    return T_values_df, p_values_df, median_df

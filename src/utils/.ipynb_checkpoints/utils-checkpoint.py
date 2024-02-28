@@ -6,7 +6,9 @@ import numpy as np
 Some needed variables for all scripts
 """
 
-base_dir = '/home/stan/thesis-repo/'
+targetspace = 'nativesurface'
+
+base_dir = '/media/Working/stan-thesis/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
@@ -22,7 +24,7 @@ param_dir = os.path.join(proj_dir, 'stats', 'parametric_test')
 models_dir = os.path.join(betas_dir, 'serialised_models')
 
 
-nsd_dir = os.path.join(data_dir, 'NSD')
+nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/stan-thesis/data/', 'NSD')
 
 
 #sessions = [37, 37, 29, 27, 37, 29, 37, 27]
