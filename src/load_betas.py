@@ -119,8 +119,9 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
 
                 betas_train, betas_test, train_test_mask, train_test_conditions = split_conditions(betas_mean, conditions, conditions_sampled)
 
+
                 print(f'\t\tsaving training betas for {sub}')
-                np.save(betas_train_file, betas_train)
+                np.save(betas_train_file, betas_train, allow_pickle=False)
 
                 print(f'\t\tsaving testing betas for {sub}')
                 np.save(betas_test_file, betas_test)
@@ -130,4 +131,3 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
             else:
                 print(f'\t\tfiles exist for {sub}')
 
-# load_betas(subj_list, sessions, targetspace=targetspace, mode='train') 
