@@ -65,11 +65,12 @@ def wilcoxon_test(subj_list, rois, mode='averaged'):
     cols = rois.keys()
     ints = rois.values()
 
-    T_values = np.zeros((len(cols), len(cols)), dtype=object)
+    z_values = np.zeros((len(cols), len(cols)), dtype=object)
     p_values = np.ones((len(cols), len(cols)),  dtype=object)
-    T_values_df = pd.DataFrame(T_values, columns =cols, index=cols)
+    medians = np.zeros((len(cols), len(cols)), dtype=object)
+    z_values_df = pd.DataFrame(z_values, columns =cols, index=cols)
     p_values_df = pd.DataFrame(p_values, columns= cols, index=cols)
-    median_df = pd.DataFrame(T_values, columns=cols, index=cols)
+    median_df = pd.DataFrame(medians, columns=cols, index=cols)
 
     for i, sub in enumerate(subj_list):
         distance_df = create_rotation_df(sub, rois, random=False, mode=mode)
@@ -86,14 +87,20 @@ def wilcoxon_test(subj_list, rois, mode='averaged'):
             # being i and j, and then flatten it onto 1D
             y = np.delete(distance, (i, j), axis = 1)[:, :, j].flatten()
 
+            # make the data a 1D array : X - Y
             x -= y
+        
+            
+           
             # print median of the difference 
-            # make a table 
-            median_df.iloc[i, j] = np.median(x)
+            # make a table o
+            median_df.iloc[i, j] = np.median(x)  # fix the indexing 
 
-            res = stats.wilcoxon(x, y) # change that to output Z (approx) 
+            res = stats.wilcoxon(x, method='approx') # change that to output Z (approx) 
             ### compare it to matlab 
-            T_values_df.iloc[i, j] = res.statistic
+      #      print(res.zstatistic)
+           
+            z_values_df.iloc[i, j] = np.abs(res.zstatistic) * np.sign(np.median(x))
             p_values_df.iloc[i, j] = res.pvalue
 
-    return T_values_df, p_values_df, median_df
+    return z_values_df, p_values_df, median_df

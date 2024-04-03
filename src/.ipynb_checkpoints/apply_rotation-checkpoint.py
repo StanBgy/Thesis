@@ -15,10 +15,11 @@ def apply_rotation(target, subj, rois, mode='averaged'):
     I should add a print statment for that 
     """
 
-    rotations_df = create_rotation_df(subj, rois, random=False)
+    rotations_df = create_rotation_df(subj, rois, random=False, mode=mode)
     rotations_df = rotations_df[rotations_df['base'] == target]
     rotations_df = get_ranking(rotations_df, only_filter=True)
     rotations_df = rotations_df.reset_index(drop=True)
+    print(rotations_df)
     for roi in rois.keys():
         rotated_file = os.path.join(mds_dir, subj, f'{subj}_{roi}_MDS_rotated_{target}_{mode}.npy')
         if not os.path.exists(rotated_file):
@@ -27,7 +28,7 @@ def apply_rotation(target, subj, rois, mode='averaged'):
             if roi == target: 
                 ### if the current roi is our target, just keep the MDS as is but rename it, for simplicity sake
                 np.save(rotated_file, source_mds, allow_pickle=True)
-
+                continue ### necessary 
             
             U = rotations_df.loc[rotations_df['source'] == roi, 'U'].squeeze()
             print(U.shape)
@@ -36,6 +37,9 @@ def apply_rotation(target, subj, rois, mode='averaged'):
             np.save(rotated_file, rotated_mds)
         else: 
             print(f"Rotated mds for {subj} and ROI {roi} already exists!")
+
+
+
 
 
 

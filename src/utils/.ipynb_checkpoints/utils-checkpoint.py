@@ -8,10 +8,11 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-base_dir = '/home/stan/thesis-repo/'
+base_dir  = '/media/Working/stan-thesis/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
+label_dir = os.path.join(data_dir, 'nsddata')
 
 # Proj dir is where everything that we compute
 proj_dir = os.path.join(base_dir, 'projects')
@@ -21,19 +22,25 @@ mds_dir = os.path.join(proj_dir, 'MDS')
 
 fits_dir = os.path.join(proj_dir, 'fits')
 param_dir = os.path.join(proj_dir, 'stats', 'parametric_test') 
-models_dir = os.path.join(betas_dir, 'serialised_models')
+models_dir = os.path.join(proj_dir, 'serialised_models')
+results_dir = os.path.join(proj_dir, 'results')
 
 
-nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/stan-thesis/data/', 'NSD')
+#nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
+nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/NSD/') # Now on HDD. Works only during odd months, full moon, and if Jupiter is at a 45 degrees angle with Earth
+
 
 
 #sessions = [37, 37, 29, 27, 37, 29, 37, 27]
 sessions = [40, 40, 32, 30, 40, 32, 40, 30]
-subjects_sessions = {i: (f'subj0{i}',sessions[i-1]) for i in range(1,9)}
+subjects_sessions = {i: (f'subj0{i}',sessions[i-1]) for i in range(1, 9)}
+
 subj_list = [sub[0] for sub in list(subjects_sessions.values())]
 rois = {'V1': 1, 'V2': 2, 'V3': 3, 'hV4': 4, 'VO-1': 5, 'VO-2': 6,
  'PHC-1': 7, 'PHC-2': 8, 'LO-1': 9, 'LO-2': 10, 'TO-1': 11, 'TO-2': 12
 }
+# Reversed: 
+sior = {v:k for k, v in rois.items()}
 
 params = {'random': True, 
           'initial': (np.array([-0.4, -0.4, 0.01, 0.1, - 2]), np.array([0.4, 0.4, 2, 10, 2])), 
@@ -41,3 +48,5 @@ params = {'random': True,
            'loss': 'linear',
            'method': 'trf'
         }
+
+models = ['wself', 'oself']

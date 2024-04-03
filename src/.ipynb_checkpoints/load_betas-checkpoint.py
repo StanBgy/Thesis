@@ -1,7 +1,7 @@
 import os
 import nsd_access 
 import numpy as np 
-from utils.utils import betas_dir, nsd_dir, proj_dir, mask_dir, sessions
+from utils.utils import betas_dir, nsd_dir, proj_dir, mask_dir, sessions, subj_list
 from utils.split_condition import split_conditions
 from nsddatapaper_rsa.utils.nsd_get_data import get_conditions, get_betas 
 from nsddatapaper_rsa.utils.utils import average_over_conditions
@@ -39,6 +39,7 @@ targetspace = 'nativesurface'
 def load_betas(subs, sessions, targetspace, mode='averaged'):
     for i, sub in enumerate(subs):
         maskdata_file = os.path.join(mask_dir, sub, f'{sub}.testrois.npy')
+        print(os.path.exists(maskdata_file))
         maskdata_long = np.load(maskdata_file,allow_pickle=True)
         maskdata_long_bool = (maskdata_long > 0)
         maskdata_long_bool
@@ -66,7 +67,7 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
                     mask=maskdata_long_bool,
                     targetspace=targetspace,
                 )
-                print(f'concatenating betas for {subs[0]}')
+                print(f'concatenating betas for {sub}')
                 betas_mean = np.concatenate(betas_mean, axis=1).astype(np.float32)
 
                 print(f'Now averaging them')
@@ -75,6 +76,15 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
                     conditions,
                     conditions_sampled
                 ).astype(np.float32)
+
+                if np.isnan(betas_mean).any():# drop the full row if there's some nan (so drop the whole voxel)  -> annoying but necessary, otherwise RDM breaks
+         #           betas_mean = betas_mean[~np.isnan(betas_mean).any(axis=1), :]    # This is fine, works as intended 
+                    betas_mean = np.nan_to_num(betas_mean, copy=False) # defualt value 0.0. T
+
+                ## Removing the rows leads to too much problems 
+                ## Dimensions get messed up, with breaks the masking later 
+                ## For now, I'll just put them to 0; assuming nan = no activity 
+                ## might be wrong but this is by far the easiest way of deal with this issue 
 
                 print(f'Saving conditions averaged betas')
                 np.save(betas_mean_file, betas_mean)
@@ -86,9 +96,9 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
 
         if mode == "train":
             # not averaged over conditions? 
-            betas_train_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_train.npy')
-            betas_test_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_test.npy')
-            betas_mask_file = os.path.join(betas_dir, f'{subs[0]}_betas_list_{targetspace}_train_test_mask.npy')
+            betas_train_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_train.npy')
+            betas_test_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_test.npy')
+            betas_mask_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_train_test_mask.npy')
 
             if not os.path.exists(betas_train_file) or not os.path.exists(betas_test_file) or not os.path.exists(betas_mask_file):
                 print(f'\t\tcreating training and test split of betas for {sub}')
@@ -97,14 +107,21 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
                         nsd_dir,
                         sub,
                         sessions[i],
+                        mask=maskdata_long_bool, #right?
                         targetspace=targetspace,
                         )
 
+                
                 print(f'\t\t concatenating betas for {sub}')
 
                 betas_mean = np.concatenate(betas_mean, axis=1).astype(np.float32)
 
-                betas_train, betas_test, train_test_mask, train_test_conditions = split_conditions(betas_mean, conditions_betas, conditions_sampled)
+                if np.isnan(betas_mean).any():# drop the full row if there's some nan (so drop the whole voxel)  -> annoying but necessary, otherwise RDM breaks
+           #         betas_mean = betas_mean[~np.isnan(betas_mean).any(axis=1), :]    # This is fine, works as intended 
+                    betas_mean = np.nan_to_num(betas_mean, copy=False)
+
+
+                betas_train, betas_test, train_test_mask, train_test_conditions = split_conditions(betas_mean, conditions, conditions_sampled)
 
                 print(f'\t\tsaving training betas for {sub}')
                 np.save(betas_train_file, betas_train)
@@ -113,8 +130,8 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
                 np.save(betas_test_file, betas_test)
 
                 print(f'\t\tsaving training-testing mask for {sub}')
-                np.save(train_test_mask_file, train_test_mask)
+                np.save(betas_mask_file, train_test_mask)
             else:
                 print(f'\t\tfiles exist for {sub}')
 
-# load_betas(subs, sessions, targetspace, split=True)
+# load_betas(subj_list, sessions, targetspace=targetspace, mode='train') 

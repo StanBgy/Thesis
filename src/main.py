@@ -5,7 +5,8 @@ from fit_params import gaussian_fit
 from create_models import create_models
 from utils.utils import *
 
-mode = "averaged"
+
+mode = "train"
 if __name__ == "__main__":
     # First step : get the betas
     load_betas(subj_list, sessions, targetspace=targetspace, mode=mode) # change the None here 
@@ -15,10 +16,10 @@ if __name__ == "__main__":
 
     # Apply Rotation 
     for subj in subj_list:
-        apply_rotation('VO-1', subj, mode=mode)
+        apply_rotation('VO-1', subj, rois, mode=mode)
 
     # Fit on the gaussian curve
-    gaussian_fit(subj_list, rois, params, rotated=True, mode=mode) # Need to update to add split=True version 
+    gaussian_fit(subj_list, rois, params, rotated=True, mode=mode) 
 
     # Create model 
     create_models(subj_list, sior, rois, models, mode=mode, rotated=True)

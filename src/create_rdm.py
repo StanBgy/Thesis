@@ -4,6 +4,7 @@ import numpy as np
 from utils.utils import *
 from scipy.spatial.distance import pdist 
 from nsddatapaper_rsa.utils.utils import mds
+import nibabel as nib
 
 """
 This file takes the betas, the mask and computes
@@ -33,6 +34,9 @@ def create_rdm(list_subj, mode='averaged'):
         betas_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_{mode}.npy') 
         betas = np.load(betas_file, allow_pickle=True).astype(np.float32)
 
+      #  if np.isnan(betas).any():# drop the full row if there's some nan (so drop the whole voxel)  -> annoying but necessary, otherwise RDM breaks
+       #     betas = betas[~np.isnan(betas).any(axis=1), :]    # This is fine, works as intended 
+
         for mask_name in rois.keys():
             start_mask_name = time.time() 
             print(
@@ -52,13 +56,24 @@ def create_rdm(list_subj, mode='averaged'):
                     print(f'\t\t\tfound some NaN for ROI: {mask_name} - {sub}')
     
                 masked_betas = masked_betas[good_vox, :]
+                print(masked_betas.shape)
+
+                if np.isnan(masked_betas).any():# drop the full row if there's some nan (so drop the whole voxel)  -> annoying but necessary, otherwise RDM breaks
+                    masked_betas = masked_betas[~np.isnan(masked_betas).any(axis=1), :]
+                    
+                    
+                        # This is fine, works as intended. But this should be done before. 
+                        
 
                 # Transpose needed for correlation distance 
                 X = masked_betas.T
+               
+       
 
                 print(f'\t\t\tcomputing {mode} RDM for roi: {mask_name}')
                 start_time = time.time()
                 rdm = pdist(X, metric='correlation')
+            
 
                 if np.any(np.isnan(rdm)):
                     raise ValueError
@@ -98,6 +113,61 @@ def create_rdm(list_subj, mode='averaged'):
             f'\t\tTime elapsed during {mask_name}: ',
             f'{time.strftime("%H:%M:%S", time.gmtime(time.time() - start_mask_name))}'
             )
+
+        
+        if np.isnan(betas).any():
+              # SUBJ06 AND SUBJ08 Have NaNs for some fucking reason: need to remove and replace. Can't do before because of the masking
+            # which means I need to change the masks
+            # I know for the hemishpere mask that they have been stack horizontally (its in luis' code) 
+            # so if a voxel is below the cutoff, its in LH. if its above, its in RH
+            if mode == 'train':
+                betas_test_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_test.npy')  # also do it for test 
+                betas_test = np.load(betas_test_file, allow_pickle=True).astype(np.float32)
+                print(betas_test.shape)
+                betas_test = betas_test[~np.isnan(betas).any(axis=1), :]
+                np.save(betas_test_file, betas_test)
+            maskdata_reduced_file = os.path.join(mask_dir, sub, f'short.reduced.{sub}.testrois.npy')
+            maskdata_reduced = np.load(maskdata_reduced_file).astype(int)
+            maskdata_reduced = maskdata_reduced[~np.isnan(betas).any(axis=1)]
+            maskdata_reduced_file_new = os.path.join(mask_dir, sub, f'short.reduced.nans.{sub}.testrois.npy')  # also rewrite the mask (needed for model building)
+            np.save(maskdata_reduced_file_new, maskdata_reduced)
+
+
+            maskdata_lh_path = os.path.join(mask_dir, sub , f'lh.{sub}.testrois.mgz')
+            maskdata_lh = nib.load(maskdata_lh_path).get_fdata().squeeze()
+            maskdata_rh_path = os.path.join(mask_dir, sub , f'rh.{sub}.testrois.mgz')
+            maskdata_rh = nib.load(maskdata_rh_path).get_fdata().squeeze()
+
+            lh_indices = np.where((maskdata_lh >= 1) & (maskdata_lh <= 15))[0] 
+            rh_indices = np.where((maskdata_rh >= 1) & (maskdata_rh <= 15))[0] 
+            # I am storing the indexes of the mask corresponding to our ROIs so I can delete said indexes, without reformatting the whole mask 
+
+            indices_to_detele_lh = lh_indices[np.isnan(betas[:lh_indices.shape[0]]).any(axis=1)] 
+            indices_to_detele_rh = rh_indices[np.isnan(betas[lh_indices.shape[0]:]).any(axis=1)] 
+            # lh_indices length is also the number of voxels in LH, so we know which voxel is in which hemi
+
+         #   maskdata_lh_new = np.delete(maskdata_lh, indices_to_detele_lh)  delete messes it up later on when printing on the surface 
+          #  maskdata_rh_new = np.delete(maskdata_rh, indices_to_detele_rh)
+
+            maskdata_lh[indices_to_detele_lh] = 0
+            maskdata_rh[indices_to_detele_rh] = 0
+
+            maskdata_lh_img = nib.Nifti2Image(maskdata_lh, affine=None)
+            maskdata_rh_img = nib.Nifti2Image(maskdata_rh, affine=None)
+
+            lh_path = os.path.join(mask_dir, sub, f'lh.{sub}.nans.testrois.mgz')
+            rh_path = os.path.join(mask_dir, sub, f'rh.{sub}.nans.testrois.mgz')
+            nib.save(maskdata_lh_img, lh_path)
+            nib.save(maskdata_rh_img, rh_path) 
+
+            
+            betas = betas[~np.isnan(betas).any(axis=1), :] # For the future: might be better to put these values as 0 (masking them, in a way) 
+            
+            np.save(betas_file, betas)
+
+          #  betas = np.nan_to_num(betas, copy=False) #default replacement is 0.0
+          #  np.save(betas_file, betas)
+            
 
         print(
         f'\t\tTime elapsed during {sub}: ',

@@ -37,7 +37,7 @@ def create_rotation_df(subj, rois, random=True, mode='averaged'):
         x +=1
     for roi_source in rois.keys():
 
-        mds_source_file = os.path.join(mds_dir, subj, f'{subj}_{roi_source}_mds_{mode}.npy') # REMEMBER TO RENAME THAT 
+        mds_source_file = os.path.join(mds_dir, subj, f'{subj}_{roi_source}_mds_{mode}.npy')
         mds_source = np.load(mds_source_file, allow_pickle=True)
         
         for roi_target in rois.keys():

@@ -32,12 +32,16 @@ def split_conditions(data, conditions, splitting_conditions):
     test = 0
     for j, x in enumerate(lookup):
         conds_bool = conditions == x
+        
+    
         if x not in splitting_conditions:
             # simply add to train
             if n_dims == 2:
-                    train_data[:, train] = np.nanmean(data[:, conds_bool][:, 0], axis = 1)
+                    train_data[:, train] = np.nanmean(data[:, conds_bool][:, 0][:, np.newaxis], axis = 1)   # It broke, so had to add the neewaxis here, just giving this an extra dimension
+                   
+                # I hope its fine and still does what it is supposed to 
             else:
-                    train_data[:, :, :, train] = np.nanmean(data[:, :, :, conds_bool][:, :, :, 0], axis = 3)
+                    train_data[:, :, :, train] = np.nanmean(data[:, :, :, conds_bool][:, :, :, 0], axis = 3) 
         else:
             # put M-1 trials in training set and average, keep the last trial in the test set. Add condition id to the list
             if n_dims == 2:
