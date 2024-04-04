@@ -34,7 +34,7 @@ nsd_dir = os.path.join(data_dir, 'NSD')
 
 #sessions = [37, 37, 29, 27, 37, 29, 37, 27]
 sessions = [40, 40, 32, 30, 40, 32, 40, 30]
-subjects_sessions = {i: (f'subj0{i}',sessions[i-1]) for i in range(1, 9)}
+subjects_sessions = {i: (f'subj0{i}',sessions[i-1]) for i in range(1, 2)}
 
 subj_list = [sub[0] for sub in list(subjects_sessions.values())]
 rois = {'V1': 1, 'V2': 2, 'V3': 3, 'hV4': 4, 'VO-1': 5, 'VO-2': 6,
