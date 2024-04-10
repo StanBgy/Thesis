@@ -122,4 +122,5 @@ def avg_distance(rotated_source: ndarray, target: ndarray, t=None) -> float:
     else: 
         diff = rotated_source - target
     distances = np.sqrt(np.sum(diff**2, axis=1))
+    
     return distances.mean()

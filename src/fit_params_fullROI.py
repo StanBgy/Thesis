@@ -50,8 +50,10 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
             mds = np.load(mds_file, allow_pickle=True).astype(np.float32).T
 
 
-            mask_file = os.path.join(mask_dir, subj, f'short.{subj}.testrois.npy')
+            mask_file = os.path.join(mask_dir, subj, f'short.reduced.{subj}.testrois.npy')
             mask = np.load(mask_file, allow_pickle=True)
+            print(mask.shape)
+            print(np.unique(mask))
             
             if rotated:
                 fit_file = os.path.join(fits_dir, 'fits_rotated', subj, f'fits_{subj}_{mode}_{roi}_sampling_rotated.npy')
@@ -102,7 +104,7 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
                             except RuntimeError:
                                 print(f'VOXEL {voxel}: optimal params not found after {attempt} attempts')
                                 attempt + 1
-
+                
                     fits_roi.loc[voxel] = voxel_fit
 
             def gaus_roi(fits):

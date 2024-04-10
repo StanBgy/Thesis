@@ -39,6 +39,7 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
 
         print(f'Starting fitting for subj0{i + 1}')
         n_betas, n_voxels = betas.shape
+        print(betas.shape)
         for roi in rois.keys():
             start = time.time()
             if not rotated:
@@ -48,47 +49,63 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
 
             mds = np.load(mds_file, allow_pickle=True).astype(np.float32).T
 
+
+            mask_file = os.path.join(mask_dir, subj, f'short.reduced.{subj}.testrois.npy')
+            mask = np.load(mask_file, allow_pickle=True)
+            print(mask.shape)
+            print(np.unique(mask))
+            
             if rotated:
-                fit_file = os.path.join(fits_dir, 'fits_rotated', subj, f'fits_{subj}_{mode}_{roi}_rotated.npy')
+                fit_file = os.path.join(fits_dir, 'fits_rotated', subj, f'fits_{subj}_{mode}_{roi}_sampling_rotated.npy')
             if not rotated:
                 fit_file = os.path.join(fits_dir, 'fits_not_rotated', subj, f'fits_{subj}_{mode}_{roi}_notrotated.npy')
-            
             if os.path.exists(fit_file):
                 print(f'\t\t\ŧskipping {roi}, already exists')
                 continue
-            fits_roi = pd.DataFrame(columns=columns)
-
             print(f'Starting fitting for ROI {roi}, on version 1')
-            for voxel in range(n_voxels):
-                if not voxel % 1000:
-                    print(f'\t\t\t\t\t[{100*voxel/n_voxels:.2f}%] elapsed time since {roi} start: ',
-                            f'{time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}'
-                         )
-                voxel_activity = betas[:, voxel]
 
-                if params['random']:
-                    attempt = 1
-                    solved = False
-                    while not solved and attempt <= 10:
-                        try: 
-                        
-                            initial_guess = (initial[1] - initial[0]) * np.random.random(initial[0].shape) + initial[0]
-                            voxel_fit = curve_fit(
-                                    gaussian_2d_curve_pol,
-                                    mds,
-                                    voxel_activity,
-                                    p0 = initial_guess,
-                                    bounds = bounds,
-                                    method = 'trf',
-                                    ftol = 1e-06,
-                            )[0]
-                            solved = True
-                        
-                        except RuntimeError:
-                            print(f'VOXEL {voxel}: optimal params not found after {attempt} attempts')
-                            attempt + 1
-            
-                fits_roi.loc[voxel] = voxel_fit
+            fits_roi = pd.DataFrame( columns=columns)
+
+            for i in rois.values():
+                #  if rois[roi] == i:  # skip if we're sampling for the same ROI 
+                 #   continue
+                voxel_indices = np.where(mask == i)[0]
+                print(voxel_indices.shape[0])
+
+
+
+                counts = 0
+                for voxel in voxel_indices:
+                    counts += 1
+                    if not counts % 100:
+                        print(f'\t\t\t\t\t[{100*counts/voxel_indices.shape[0]:.2f}%] elapsed time since {roi} sampling from {list(rois.keys())[i-1]} start: ',
+                                f'{time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}'
+                             )
+                    voxel_activity = betas[:, voxel]
+
+                    if params['random']:
+                        attempt = 1
+                        solved = False
+                        while not solved and attempt <= 10:
+                            try: 
+                            
+                                initial_guess = (initial[1] - initial[0]) * np.random.random(initial[0].shape) + initial[0]
+                                voxel_fit = curve_fit(
+                                        gaussian_2d_curve_pol,
+                                        mds,
+                                        voxel_activity,
+                                        p0 = initial_guess,
+                                        bounds = bounds,
+                                        method = 'trf',
+                                        ftol = 1e-06,
+                                )[0]
+                                solved = True
+                            
+                            except RuntimeError:
+                                print(f'VOXEL {voxel}: optimal params not found after {attempt} attempts')
+                                attempt + 1
+                    print(voxel_fit)
+                    fits_roi.loc[voxel] = voxel_fit
 
             def gaus_roi(fits):
                 return gaussian_2d_curve_pol(mds, *fits)
@@ -105,8 +122,6 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
                     return gaussian_2d_curve_pol(mds_test, *fits)
                 pred_activity_test = fits_roi.apply(gaus_roi_test, axis=1)
                 pred_activity_test = np.array([np.array(x) for x in pred_activity_test]).T
-                print(betas_test.shape)
-                print(pred_activity_test.shape)
                 roi_res_test = np.sum((pred_activity_test - betas_test)**2, axis=0)
                 roi_rot_test = sum((betas_test - np.tile(betas_test.mean(axis=0), (sum(train_test_mask), 1)))**2).T
                 fits_roi["test_var_explained"] = 1 - roi_res_test / roi_rot_test
@@ -115,9 +130,9 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
             fits_roi["mds_ang"] = np.arctan2(fits_roi.x0/bounds[1][0], fits_roi.y0/bounds[1][1])
 
             np.save(fit_file, fits_roi)
-            print(f'\t\t\tTime elapsed during {roi}: ',
+            print(f'\t\t\tTime elapsed during {list(rois.keys())[i-1]}: ',
             f'{time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}'
                         )
     del betas
 
-
+gaussian_fit(subj_list, rois, params, rotated=True, mode="train")

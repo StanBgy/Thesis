@@ -149,3 +149,26 @@ def get_distances(df, rois):
                 distances[i-1, j-1] = roi_distance[0]
 
     return distances
+
+
+def get_prefered_xy(x, y, subj):
+    mds_s1 = np.load(os.path.join(mds_dir, 'subj01', 'subj01_VO-1_MDS_rotated_VO-1_train.npy'), allow_pickle=True)
+    mds_source = np.load(os.path.join(mds_dir, subj, f'{subj}_VO-1_MDS_rotated_VO-1_train.npy'), allow_pickle=True)
+    mds_source_flipped = np.dot(mds_source, np.array([[-1, 0], [0, 1]])) 
+    U, t = kabsch2D(mds_source, mds_s1, translate=True)
+    rotated_source = rotate(mds_source, U)
+    U_flipped, t = kabsch2D(mds_source_flipped, mds_s1, translate=True)
+    rotated_source_flipped = rotate(mds_source_flipped, U_flipped)
+    
+    distance = avg_distance(rotated_source, mds_s1, t)
+    distance_flipped = avg_distance(rotated_source_flipped, mds_s1, t)
+
+    if distance >= distance_flipped:
+        x = np.dot(x, U[0,0])
+        y = np.dot(y, U[0,1])
+    if distance_flipped > distance:
+        x = np.dot(x, -1)
+        x = np.dot(x, U[0,0])
+        y = np.dot(x, -1)
+        y = np.dot(y, U[0,1])
+    return x, y

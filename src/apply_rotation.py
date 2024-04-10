@@ -19,6 +19,7 @@ def apply_rotation(target, subj, rois, mode='averaged'):
     rotations_df = rotations_df[rotations_df['base'] == target]
     rotations_df = get_ranking(rotations_df, only_filter=True)
     rotations_df = rotations_df.reset_index(drop=True)
+    rotations_df.to_csv(f'rotations/{subj}_rotations_df.csv', index=True)
     print(rotations_df)
     for roi in rois.keys():
         rotated_file = os.path.join(mds_dir, subj, f'{subj}_{roi}_MDS_rotated_{target}_{mode}.npy')
@@ -31,7 +32,11 @@ def apply_rotation(target, subj, rois, mode='averaged'):
                 continue ### necessary 
             
             U = rotations_df.loc[rotations_df['source'] == roi, 'U'].squeeze()
+            # I need to save this, somehow 
             print(U.shape)
+            # flip first
+            if "flipped" in rotations_df[rotations_df['source'] == roi].target[0]:
+                source_mds = np.dot(source_mds, np.array([[-1, 0], [0, 1]]))
             rotated_mds = np.dot(source_mds, U)
             print(f"Saving Rotated mds for {subj} and ROI {roi}")
             np.save(rotated_file, rotated_mds)
