@@ -8,7 +8,7 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-base_dir  = '/home/stan/thesis-repo/'
+base_dir  = '/media/Working/stan-thesis/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
@@ -29,7 +29,7 @@ results_dir = os.path.join(proj_dir, 'results')
 #nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
 nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/NSD/') # Now on HDD. Works only during odd months, full moon, and if Jupiter is at a 45 degrees angle with Earth
 
-nsd_dir = os.path.join(data_dir, 'NSD')
+#nsd_dir = os.path.join(data_dir, 'NSD')
 
 
 #sessions = [37, 37, 29, 27, 37, 29, 37, 27]

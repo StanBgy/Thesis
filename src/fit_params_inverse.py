@@ -81,7 +81,7 @@ def gaussian_fit(subj_list, rois, params,  mode='averaged'):
                             attempt + 1
             
                 model_allROI[i, voxel] = voxel_fit # put the fitted values on the rigth voxel to ROI index 
-            if not voxel % 10:
+            if not voxel % 100:
                 print(f'\t\tFitted Voxel {voxel} out of {n_voxels}, elapsed time on {subj}: {time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}' )
         for i, roi in enumerate(list(rois.keys())):
             fit_file = os.path.join(fits_dir, 'fits_inversed', subj, f'fits_{subj}_{mode}_{roi}_inversed.npy')

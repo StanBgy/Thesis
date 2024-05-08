@@ -123,9 +123,16 @@ def create_rdm(list_subj, mode='averaged'):
             if mode == 'train':
                 betas_test_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_test.npy')  # also do it for test 
                 betas_test = np.load(betas_test_file, allow_pickle=True).astype(np.float32)
+                betas_test = betas_test[~np.isnan(betas).any(axis=1)]
                 print(betas_test.shape)
-                betas_test = betas_test[~np.isnan(betas).any(axis=1), :]
                 np.save(betas_test_file, betas_test)
+                betas_mask_file = os.path.join(mask_dir, sub, f'short.reduced.{sub}.testrois.npy') # also do it for mask
+                print('FIXING MASKS')
+                betas_mask = np.load(betas_mask_file, allow_pickle=True)
+                print(betas_mask.shape)
+                betas_mask = betas_mask[~np.isnan(betas).any(axis=1)]
+                betas_mask_file = os.path.join(mask_dir, sub, f'short.reduced.nans.{sub}.testrois.npy')
+                np.save(betas_mask_file, betas_mask)
             maskdata_reduced_file = os.path.join(mask_dir, sub, f'short.reduced.{sub}.testrois.npy')
             maskdata_reduced = np.load(maskdata_reduced_file).astype(int)
             maskdata_reduced = maskdata_reduced[~np.isnan(betas).any(axis=1)]

@@ -2,8 +2,10 @@ import os
 import copy
 import pandas as pd
 import numpy as np
+from functools import reduce
 from utils.kabsch2D import * 
 from utils.utils import *
+from nsddatapaper_rsa.utils.nsd_get_data import get_conditions
 
 """
 Utils functions for the flips 
@@ -151,24 +153,60 @@ def get_distances(df, rois):
     return distances
 
 
-def get_prefered_xy(x, y, subj):
-    mds_s1 = np.load(os.path.join(mds_dir, 'subj01', 'subj01_VO-1_MDS_rotated_VO-1_train.npy'), allow_pickle=True)
-    mds_source = np.load(os.path.join(mds_dir, subj, f'{subj}_VO-1_MDS_rotated_VO-1_train.npy'), allow_pickle=True)
-    mds_source_flipped = np.dot(mds_source, np.array([[-1, 0], [0, 1]])) 
-    U, t = kabsch2D(mds_source, mds_s1, translate=True)
-    rotated_source = rotate(mds_source, U)
-    U_flipped, t = kabsch2D(mds_source_flipped, mds_s1, translate=True)
-    rotated_source_flipped = rotate(mds_source_flipped, U_flipped)
-    
-    distance = avg_distance(rotated_source, mds_s1, t)
-    distance_flipped = avg_distance(rotated_source_flipped, mds_s1, t)
+def get_prefered_xy(subj_list, sessions, fetch_conds=False) -> ndarray:
+    """
+    Take a list of subject,
+    and find the prefered rotation between each's subject's VO-1 and subj01's VO-1 
 
-    if distance >= distance_flipped:
-        x = np.dot(x, U[0,0])
-        y = np.dot(y, U[0,1])
-    if distance_flipped > distance:
-        x = np.dot(x, -1)
-        x = np.dot(x, U[0,0])
-        y = np.dot(x, -1)
-        y = np.dot(y, U[0,1])
-    return x, y
+    return a (8, 2) np array containing the rotation for x and y for each subject except 01
+
+    """
+    if fetch_conds:
+        for i , sub in enumerate(subj_list):
+            file = os.path.join(data_dir, 'conditions', sub, f'{sub}.conditions.npy')
+            conditions = get_conditions(nsd_dir, sub, sessions[i])
+            conditions = np.asarray(conditions).ravel()
+            conditions_bool = [
+                    True if np.sum(conditions == x) >= 1 else False for x in conditions]
+            
+            conditions_sampled = conditions[conditions_bool]
+            
+                # find the subject's unique condition list (sample pool)
+            sample = np.unique(conditions[conditions_bool])  
+            np.save(file, sample)
+        
+        
+    conds1 = np.load('/media/Working/stan-thesis/data/conditions/subj01/subj01.conditions.npy')
+    conds2 = np.load('/media/Working/stan-thesis/data/conditions/subj02/subj02.conditions.npy')
+    conds3 = np.load('/media/Working/stan-thesis/data/conditions/subj03/subj03.conditions.npy')
+    conds4 = np.load('/media/Working/stan-thesis/data/conditions/subj04/subj04.conditions.npy')
+    conds5 = np.load('/media/Working/stan-thesis/data/conditions/subj05/subj05.conditions.npy')
+    conds6 = np.load('/media/Working/stan-thesis/data/conditions/subj06/subj06.conditions.npy')
+    conds7 = np.load('/media/Working/stan-thesis/data/conditions/subj07/subj07.conditions.npy')
+    conds8 = np.load('/media/Working/stan-thesis/data/conditions/subj08/subj08.conditions.npy')
+
+    common_conditions = reduce(np.intersect1d, (conds1, conds2, conds3, conds4, conds5, conds6, conds7, conds8))
+    print(common_conditions.shape)
+
+    cos_sin = np.ones((8, 2))
+    mds_V01_s1 = np.load(os.path.join(mds_dir, 'subj01', 'subj01_VO-1_MDS_rotated_VO-1_train.npy'), allow_pickle=True)
+    for i, sub in enumerate(subj_list):
+        if sub == 'subj01':
+            continue
+
+        
+        mds_sub = np.load(os.path.join(mds_dir, sub, f'{sub}_VO-1_MDS_rotated_VO-1_train.npy'), allow_pickle=True)
+        conds_sub = np.load(os.path.join(data_dir, 'conditions', sub, f'{sub}.conditions.npy'), allow_pickle=True)
+        
+        mds_V01_s1_new = mds_V01_s1[np.isin(conds1, common_conditions)]
+        mds_sub = mds_sub[np.isin(conds_sub, common_conditions)]
+        print(mds_sub)
+        U = kabsch2D(mds_V01_s1_new, mds_sub)
+        cos_sin[i, 0] = U[0, 0]
+        cos_sin[i, 1] = U[1, 0]
+    cos_sin[0, 1] = 0
+    return cos_sin
+    
+        
+
+    
