@@ -92,7 +92,9 @@ def gaussian_fit(subj_list, rois, params,  mode='averaged'):
                 
             fits_roi = pd.DataFrame(model_allROI[i], columns=columns)
 
-
+            mds_file = os.path.join(mds_dir, subj, f'{subj}_{roi}_MDS_rotated_VO-1_train.npy')  # Works better if I dont forget this  
+            mds = np.load(mds_file, allow_pickle=True).astype(np.float32).T
+            
             def gaus_roi(fits):
                 return gaussian_2d_curve_pol(mds, *fits)
 
