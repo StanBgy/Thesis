@@ -23,12 +23,12 @@ def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False):
     initial = params['initial']
     bounds = params['bounds']
     for i, subj in enumerate(subj_list):
-        print(f'GETTING BETAS FOR SUBJ0{i+1}')
+        print(f'GETTING BETAS FOR {subj}')
         betas = [] 
         betas_tests = []
         tt_masks = []
         n_betas, n_voxels=0, 0
-        for j in range(2, 5):
+        for j in range(0, 5):
             print(j)
             betas_file = os.path.join(nsd_dir, 'full_brain', subj  , f'{subj}_betas_list_{targetspace}_{mode}_full_{j}.npy') # could parametertize the targetsurface but eh
             betas_chunk = np.load(betas_file, allow_pickle=True, mmap_mode='r').astype(np.float32).T  #mmap_mode is super important here
@@ -161,5 +161,5 @@ def run_chunk(chunk,   chunk_test, chunk_mask, subj, rois):
                     print(f'\t\tFitted Voxel {voxel} out of {chunk.shape[1]}, elapsed time on {subj}: {time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}' )
             return model_chunk
             
-subj_list = ['subj01']
+subj_list.remove('subj01')
 gaussian_fit_full(subj_list, rois, params,  mode="train")
