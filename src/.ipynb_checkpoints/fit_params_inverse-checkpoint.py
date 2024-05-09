@@ -88,7 +88,8 @@ def gaussian_fit(subj_list, rois, params,  mode='averaged'):
                     
             if os.path.exists(fit_file):
                 print(f'a fitted model already exists for {roi}, skipping')
-
+                continue
+                
             fits_roi = pd.DataFrame(model_allROI[i], columns=columns)
 
 

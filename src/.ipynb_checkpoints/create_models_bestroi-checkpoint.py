@@ -5,7 +5,11 @@ import numpy as np
 from utils.utils import *
 
 
-def create_models_explain(subj_list, sior, rois, models, mode='averaged', rotated=False):
+"""
+Not in use right now (07/05)
+"""
+
+def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True):
     """
     Take the fitted betas and create a model 
     If split is train we also add the cross validated var_explained to the model
@@ -30,7 +34,7 @@ def create_models_explain(subj_list, sior, rois, models, mode='averaged', rotate
         all_exist = True
         for m in models:
             if rotated:
-                model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}_baseroi_rotated.npy')
+                model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}_bestroi.npy')
             if not os.path.exists(model_file):
                 model_out = build_model(m, columns, n_voxels, belongs, sub, mode, rotated)
                 for roi in rois.keys():
@@ -60,6 +64,10 @@ def build_model(model, columns, n_voxels, belongs, sub, mode='train', rotated=Tr
         match model:
             case 'wself':
                 fit_mask = model_out.var_explained < fits_ss.var_explained
+            case 'woself':
+                skip_woself = fits_ss.roi != fits_ss.fit_with
+                fit_mask = model_out.var_explained < fits_ss.var_explained
+                fit_mask = np.logical_and(skip_woself, fit_mask)
             case 'oself':
                 only_self = fits_ss.roi == fits_ss.fit_with
                 fit_mask = model_out.var_explained < fits_ss.var_explained
@@ -67,6 +75,11 @@ def build_model(model, columns, n_voxels, belongs, sub, mode='train', rotated=Tr
         if any(fit_mask):
             update_fits = fits_ss[fit_mask]
             model_out.update(update_fits)
+
+        model_out['fit_with'] = model_out.groupby(['roi'])['var_explained'].mean().sort_values(ascending=False).index[0]
     return model_out
+
+models = ['woself']
+create_models_best(subj_list, sior, rois, models)
 
 

@@ -153,7 +153,7 @@ def get_distances(df, rois):
     return distances
 
 
-def get_prefered_xy(subj_list, sessions) -> ndarray:
+def get_prefered_xy(subj_list, sessions, fetch_conds=False) -> ndarray:
     """
     Take a list of subject,
     and find the prefered rotation between each's subject's VO-1 and subj01's VO-1 
@@ -161,29 +161,29 @@ def get_prefered_xy(subj_list, sessions) -> ndarray:
     return a (8, 2) np array containing the rotation for x and y for each subject except 01
 
     """
-
-    for i , sub in enumerate(subj_list):
-        file = os.path.join(data_dir, 'conditions', sub, f'{sub}.conditions.npy')
-        conditions = get_conditions(nsd_dir, sub, sessions[i])
-        conditions = np.asarray(conditions).ravel()
-        conditions_bool = [
-                True if np.sum(conditions == x) >= 1 else False for x in conditions]
+    if fetch_conds:
+        for i , sub in enumerate(subj_list):
+            file = os.path.join(data_dir, 'conditions', sub, f'{sub}.conditions.npy')
+            conditions = get_conditions(nsd_dir, sub, sessions[i])
+            conditions = np.asarray(conditions).ravel()
+            conditions_bool = [
+                    True if np.sum(conditions == x) >= 1 else False for x in conditions]
+            
+            conditions_sampled = conditions[conditions_bool]
+            
+                # find the subject's unique condition list (sample pool)
+            sample = np.unique(conditions[conditions_bool])  
+            np.save(file, sample)
         
-        conditions_sampled = conditions[conditions_bool]
         
-            # find the subject's unique condition list (sample pool)
-        sample = np.unique(conditions[conditions_bool])  
-        np.save(file, sample)
-        
-        
-    conds1 = np.load('/media/Working/stan-thesis/data/conditions/subj01/subj01.conditions.npy')
-    conds2 = np.load('/media/Working/stan-thesis/data/conditions/subj02/subj02.conditions.npy')
-    conds3 = np.load('/media/Working/stan-thesis/data/conditions/subj03/subj03.conditions.npy')
-    conds4 = np.load('/media/Working/stan-thesis/data/conditions/subj04/subj04.conditions.npy')
-    conds5 = np.load('/media/Working/stan-thesis/data/conditions/subj05/subj05.conditions.npy')
-    conds6 = np.load('/media/Working/stan-thesis/data/conditions/subj06/subj06.conditions.npy')
-    conds7 = np.load('/media/Working/stan-thesis/data/conditions/subj07/subj07.conditions.npy')
-    conds8 = np.load('/media/Working/stan-thesis/data/conditions/subj08/subj08.conditions.npy')
+    conds1 = np.load(os.path.join(conds_dir, 'subj01', 'subj01.conditions.npy'), allow_pickle=True)
+    conds2 = np.load(os.path.join(conds_dir, 'subj02', 'subj02.conditions.npy'), allow_pickle=True)
+    conds3 = np.load(os.path.join(conds_dir, 'subj03', 'subj03.conditions.npy'), allow_pickle=True)
+    conds4 = np.load(os.path.join(conds_dir, 'subj04', 'subj04.conditions.npy'), allow_pickle=True)
+    conds5 = np.load(os.path.join(conds_dir, 'subj05', 'subj05.conditions.npy'), allow_pickle=True)
+    conds6 = np.load(os.path.join(conds_dir, 'subj06', 'subj06.conditions.npy'), allow_pickle=True)
+    conds7 = np.load(os.path.join(conds_dir, 'subj07', 'subj07.conditions.npy'), allow_pickle=True)
+    conds8 = np.load(os.path.join(conds_dir, 'subj08', 'subj08.conditions.npy'), allow_pickle=True)
 
     common_conditions = reduce(np.intersect1d, (conds1, conds2, conds3, conds4, conds5, conds6, conds7, conds8))
     print(common_conditions.shape)

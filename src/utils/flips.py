@@ -176,14 +176,14 @@ def get_prefered_xy(subj_list, sessions, fetch_conds=False) -> ndarray:
             np.save(file, sample)
         
         
-    conds1 = np.load('/media/Working/stan-thesis/data/conditions/subj01/subj01.conditions.npy')
-    conds2 = np.load('/media/Working/stan-thesis/data/conditions/subj02/subj02.conditions.npy')
-    conds3 = np.load('/media/Working/stan-thesis/data/conditions/subj03/subj03.conditions.npy')
-    conds4 = np.load('/media/Working/stan-thesis/data/conditions/subj04/subj04.conditions.npy')
-    conds5 = np.load('/media/Working/stan-thesis/data/conditions/subj05/subj05.conditions.npy')
-    conds6 = np.load('/media/Working/stan-thesis/data/conditions/subj06/subj06.conditions.npy')
-    conds7 = np.load('/media/Working/stan-thesis/data/conditions/subj07/subj07.conditions.npy')
-    conds8 = np.load('/media/Working/stan-thesis/data/conditions/subj08/subj08.conditions.npy')
+    conds1 = np.load(os.path.join(conds_dir, 'subj01', 'subj01.conditions.npy'), allow_pickle=True)
+    conds2 = np.load(os.path.join(conds_dir, 'subj02', 'subj02.conditions.npy'), allow_pickle=True)
+    conds3 = np.load(os.path.join(conds_dir, 'subj03', 'subj03.conditions.npy'), allow_pickle=True)
+    conds4 = np.load(os.path.join(conds_dir, 'subj04', 'subj04.conditions.npy'), allow_pickle=True)
+    conds5 = np.load(os.path.join(conds_dir, 'subj05', 'subj05.conditions.npy'), allow_pickle=True)
+    conds6 = np.load(os.path.join(conds_dir, 'subj06', 'subj06.conditions.npy'), allow_pickle=True)
+    conds7 = np.load(os.path.join(conds_dir, 'subj07', 'subj07.conditions.npy'), allow_pickle=True)
+    conds8 = np.load(os.path.join(conds_dir, 'subj08', 'subj08.conditions.npy'), allow_pickle=True)
 
     common_conditions = reduce(np.intersect1d, (conds1, conds2, conds3, conds4, conds5, conds6, conds7, conds8))
     print(common_conditions.shape)

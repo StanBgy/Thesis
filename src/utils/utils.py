@@ -8,11 +8,12 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-base_dir  = '/media/Working/stan-thesis/'
+base_dir  = '/home/stan/thesis-repo/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
 label_dir = os.path.join(data_dir, 'nsddata')
+conds_dir = os.path.join(data_dir, 'conditions')
 
 # Proj dir is where everything that we compute
 proj_dir = os.path.join(base_dir, 'projects')
@@ -26,8 +27,8 @@ models_dir = os.path.join(proj_dir, 'serialised_models')
 results_dir = os.path.join(proj_dir, 'results')
 
 
-#nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
-nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/NSD/') # Now on HDD. Works only during odd months, full moon, and if Jupiter is at a 45 degrees angle with Earth
+nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
+#nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/NSD/') # Now on HDD. Works only during odd months, full moon, and if Jupiter is at a 45 degrees angle with Earth
 
 #nsd_dir = os.path.join(data_dir, 'NSD')
 
