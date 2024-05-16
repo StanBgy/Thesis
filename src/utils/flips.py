@@ -5,6 +5,7 @@ import numpy as np
 from functools import reduce
 from utils.kabsch2D import * 
 from utils.utils import *
+
 from nsddatapaper_rsa.utils.nsd_get_data import get_conditions
 
 """
@@ -200,7 +201,6 @@ def get_prefered_xy(subj_list, sessions, fetch_conds=False) -> ndarray:
         
         mds_V01_s1_new = mds_V01_s1[np.isin(conds1, common_conditions)]
         mds_sub = mds_sub[np.isin(conds_sub, common_conditions)]
-        print(mds_sub)
         U = kabsch2D(mds_V01_s1_new, mds_sub)
         cos_sin[i, 0] = U[0, 0]
         cos_sin[i, 1] = U[1, 0]

@@ -8,12 +8,13 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-#base_dir  = '/media/Working/stan-thesis/'
-base_dir = '/home/stan/thesis-repo/'
+base_dir  = '/media/Working/stan-thesis/'
+#base_dir = '/home/stan/thesis-repo/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
 label_dir = os.path.join(data_dir, 'nsddata')
+conds_dir = os.path.join(data_dir, 'conditions')
 
 # Proj dir is where everything that we compute
 proj_dir = os.path.join(base_dir, 'projects')

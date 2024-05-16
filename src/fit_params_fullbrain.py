@@ -17,7 +17,7 @@ from utils.rf_gaussians import gaussian_2d_curve, gaussian_2d_curve_pol
 Here, we fit the gaussian curve to each voxel 
 """
 
-def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False):
+def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False, n_jobs=12):
     targetspace = 'nativesurface'
     columns = ["x0", "y0", "sigma", "slope", "intercept"]
     initial = params['initial']
@@ -30,14 +30,16 @@ def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False):
         n_betas, n_voxels=0, 0
         for j in range(0, 5):
             print(j)
+            fit_file_check = os.path.join(fits_dir, 'fits_inversed', subj, f'fits_{subj}_train_full_{j}_raw.npy')
+            if os.path.exists(fit_file_check):
+                print(f'Something exists for {subj} at chunk {j}, so we assume this was computed already, and we are skiping')
+                continue
             betas_file = os.path.join(nsd_dir, 'full_brain', subj  , f'{subj}_betas_list_{targetspace}_{mode}_full_{j}.npy') # could parametertize the targetsurface but eh
             betas_chunk = np.load(betas_file, allow_pickle=True, mmap_mode='r').astype(np.float32).T  #mmap_mode is super important here
          #   n_betas = betas_chunk.shape[0]
          #   n_voxels += betas_chunk.shape[1]
             fit_file_check = os.path.join(fits_dir, 'fits_inversed', subj, f'fits_{subj}_train_full_{j}_raw.npy')
-            if os.path.exists(fit_file_check):
-                print(f'Something exists for {subj} at chunk {j}, so we assume this was computed already, and we are skiping')
-                continue
+            
             
             if np.isnan(betas_chunk).any():
                 print(f'FOUND NANS in subj0{i+1} s betas')
@@ -51,14 +53,14 @@ def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False):
                 print(f'LOADING TRAIN TEST MSAK FOR SUBJ0{i+1}')
                 train_test_mask = np.load(train_test_mask_file, allow_pickle=True, mmap_mode='r').T.astype(bool)
 
-                split_betas = np.array_split(betas_chunk, 12, axis=1)  # this is a list, so even better
-                split_test = np.array_split(betas_test, 12, axis=1)
+                split_betas = np.array_split(betas_chunk, n_jobs, axis=1)  # this is a list, so even better
+                split_test = np.array_split(betas_test, n_jobs, axis=1)
         
     
 
                 
                 
-            with Pool(processes=12) as pool:
+            with Pool(processes=n_jobs) as pool:
                 results = pool.starmap(run_chunk, [(split_betas[k], split_test[k], train_test_mask, subj, rois) for k in range(len(split_betas))])
             del split_betas, split_test
             
@@ -162,4 +164,4 @@ def run_chunk(chunk,   chunk_test, chunk_mask, subj, rois):
             return model_chunk
             
 subj_list.remove('subj01')
-gaussian_fit_full(subj_list, rois, params,  mode="train")
+gaussian_fit_full(subj_list, rois, params,  mode="train", n_jobs=6)

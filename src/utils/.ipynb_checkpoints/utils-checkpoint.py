@@ -8,12 +8,13 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-#base_dir  = '/media/Working/stan-thesis/'
-base_dir = '/home/stan/thesis-repo/'
+base_dir  = '/media/Working/stan-thesis/'
+#base_dir = '/home/stan/thesis-repo/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
 label_dir = os.path.join(data_dir, 'nsddata')
+conds_dir = os.path.join(data_dir, 'conditions')
 
 # Proj dir is where everything that we compute
 proj_dir = os.path.join(base_dir, 'projects')
@@ -47,6 +48,23 @@ rois_long = {'V1v': 1, 'V1d': 2, 'V2v': 3, 'V2d': 4, 'V3v': 5, 'V3d': 6, 'hV4': 
 }
 
 reduced = {'V1': ['V1v', 'V1d'], 'V2': ['V2v', 'V2d'], 'V3': ['V3v', 'V3d']}
+
+rois_distances = {
+    'V1': [1, 2],
+    'V2v': [3],
+    'V2d': [4],
+    'V3v': [5],
+    'V3d': [6],
+    'hV4': [7],
+    'VO-1': [8],
+    'VO-2': [9],
+    'PHC-1': [10],
+    'PHC-2': [11],
+    'LO-1': [12],
+    'LO-2': [13],
+    'TO-1': [14],
+    'TO-2': [15]
+}
 # Reversed: 
 sior = {v:k for k, v in rois.items()}
 
@@ -58,3 +76,7 @@ params = {'random': True,
         }
 
 models = ['wself', 'oself']
+hemis = ['lh', 'rh']
+
+columns = ["x0", "y0", "sigma", "slope", "intercept", "test_var_explained", "var_explained", "mds_ecc", "mds_ang",
+                "roi", "fit_with"]
