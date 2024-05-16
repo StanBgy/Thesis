@@ -39,9 +39,11 @@ for i, sub in enumerate(models_subs.keys()):
             model_hemi = model_dic.iloc[-maskdata.shape[0]:]
             print(model_hemi.shape)# unsure about this 
         for roi_name, roi_value in rois_distances.items():
+            roi_aligned_file = os.path.join(proj_dir, 'distances', sub, f'{hemi}.{sub}.xyaligned.{roi_name}.npy')
             roi_distances_file = os.path.join(proj_dir, 'distances', sub, f'{hemi}.{sub}.dists.{roi_name}.npy')
             roi_direction_file = os.path.join(proj_dir, 'distances', sub, f'{hemi}.{sub}.directions.{roi_name}.npy')
-            if not os.path.exists(roi_distances_file):# or not os.path.exists(roi_direction_file):
+            if not os.path.exists(roi_distances_file):
+                # or not os.path.exists(roi_direction_file):
                 print(f'\t\tcomputing distances and direction for {roi_name}')
                 model_roi = model_hemi.loc[[x in rois_distances[roi_name] for x in maskdata]]
                 pairs = list(zip(model_roi.x0_prefered, model_roi.y0_prefered))
@@ -61,9 +63,20 @@ for i, sub in enumerate(models_subs.keys()):
             else:
                 print(f'\t\tskipping {roi_name} since distances file already exists')
 
-            roi_aligned_file = os.path.join(proj_dir, 'distances', sub, f'{hemi}.{sub}.xyaligned.{roi_name}.npy')
             if not os.path.exists(roi_aligned_file):
                 print(f'Computing and saving distances and direction between old and new x y for {roi_name}')
                 model_roi = model_hemi.loc[[x in rois_distances[roi_name] for x in maskdata]]
-                print(model_roi)
-                break
+                reduced_model = model_roi[['x0', 'y0', 'x0_prefered', 'y0_prefered']]
+                print(reduced_model)
+                reduced_model['distances'] = reduced_model.apply(
+                        lambda x: math.sqrt((x.x0 - x.x0_prefered) ** 2 + (x.y0 - x.y0_prefered) ** 2), axis=1
+                        )
+                reduced_model['direction'] = reduced_model.apply(
+                        lambda x: np.arctan2((x.y0_prefered - x.y0), (x.x0_prefered - x.x0)) * (180 / np.pi), axis=1
+                        )
+                np.save(roi_aligned_file, reduced_model)
+                print(f'saving x y modification for {roi_name}')
+            else:
+                print(f'skipping {roi_name}, x y modifications file already exists')
+
+
