@@ -67,14 +67,16 @@ for i, sub in enumerate(models_subs.keys()):
                 print(f'Computing and saving distances and direction between old and new x y for {roi_name}')
                 model_roi = model_hemi.loc[[x in rois_distances[roi_name] for x in maskdata]]
                 reduced_model = model_roi[['x0', 'y0', 'x0_prefered', 'y0_prefered']]
-                print(reduced_model)
                 reduced_model['distances'] = reduced_model.apply(
-                        lambda x: math.sqrt((x.x0 - x.x0_prefered) ** 2 + (x.y0 - x.y0_prefered) ** 2), axis=1
+                        lambda x: math.sqrt((x.x0 - x.x0_prefered) ** 2 + (x.y0 - x.y0_prefered) ** 2), axis=1 
                         )
                 reduced_model['direction'] = reduced_model.apply(
                         lambda x: np.arctan2((x.y0_prefered - x.y0), (x.x0_prefered - x.x0)) * (180 / np.pi), axis=1
                         )
+                print(reduced_model)
+
                 np.save(roi_aligned_file, reduced_model)
+                
                 print(f'saving x y modification for {roi_name}')
             else:
                 print(f'skipping {roi_name}, x y modifications file already exists')
