@@ -8,8 +8,8 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-base_dir  = '/media/Working/stan-thesis/'
-#base_dir = '/home/stan/thesis-repo/'
+#base_dir  = '/media/Working/stan-thesis/'
+base_dir = '/home/stan/thesis-repo/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
@@ -21,11 +21,13 @@ proj_dir = os.path.join(base_dir, 'projects')
 betas_dir = os.path.join(proj_dir, 'betas')
 rdm_dir = os.path.join(proj_dir, 'rdm')
 mds_dir = os.path.join(proj_dir, 'MDS')
+spatial_dir = os.path.join(proj_dir, 'spatial_responses')
 
 fits_dir = os.path.join(proj_dir, 'fits')
 param_dir = os.path.join(proj_dir, 'stats', 'parametric_test') 
 models_dir = os.path.join(proj_dir, 'serialised_models')
 results_dir = os.path.join(proj_dir, 'results')
+dist_dir = os.path.join(proj_dir, 'distances')
 
 
 #nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
