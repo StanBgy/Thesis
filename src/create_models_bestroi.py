@@ -48,7 +48,7 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
         all_exist = True
         for m in models:
             if rotated:
-                model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}_bestroi.npy')
+                model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}.npy')
             if not os.path.exists(model_file) or os.path.exists(model_file):
                 model_out = build_model(m, columns, n_voxels, belongs, best_roi_list, sub, mode, rotated)
                 for roi in rois.keys():

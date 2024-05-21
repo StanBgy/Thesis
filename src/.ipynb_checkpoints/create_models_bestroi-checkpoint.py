@@ -15,7 +15,10 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
     Take the fitted betas and create a model 
     If split is train we also add the cross validated var_explained to the model
     Then we use these models to get them into the cortical surface """
-    for sub in subj_list:
+    all_results_file = os.path.join(proj_dir, 'results', 'results_bestROI_hemis_collapsed.npy')
+    all_results = np.load(all_results_file, allow_pickle=True)
+    print(all_results.shape)
+    for i, sub in enumerate(subj_list):
         start_sub = time.time()
         print(f'Enter {sub} at {time.strftime("%H:%M:%S", time.gmtime(start_sub))}')
         if sub == 'subj06' or sub == 'subj08':
@@ -26,21 +29,28 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
         n_voxels = maskdata.shape[0]
 
         belongs = []
-        for i in maskdata:
-            belongs.append(sior[i])
+        for j in maskdata:
+            belongs.append(sior[j])
 
         columns = ["x0", "y0", "sigma", "slope", "intercept", "test_var_explained", "var_explained", "mds_ecc", "mds_ang"]
+        results_df = pd.DataFrame(all_results[i], columns=rois.keys(), index=rois.keys(), dtype=float)
+        results_df['best_roi'] = results_df.idxmax(axis=1)
 
+        # create a dict that stores the maskdata value and the best roi use the result_df we computed above.
+        # Convintent to tell our model where to look (which roi has the best result when sample for which roi)
+        sior_best_roi = {roi_value: best_roi for roi_value, best_roi in zip(sior.keys(), results_df['best_roi'])}
+
+        # now we can put in a list, for each index, which one is the best 
+        best_roi_list = []
+        for k in maskdata:
+            best_roi_list.append(sior_best_roi[k])
         models_files = {}
         all_exist = True
-        all_results_file = os.path.join(proj_dir, results, 'results_bestROI_all.npy')
-        all_results = np.load(all_results_file, allow_pickle=True)
-        print(all_results.shape)
         for m in models:
             if rotated:
-                model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}_bestroi.npy')
-            if not os.path.exists(model_file):
-                model_out = build_model(m, columns, n_voxels, belongs, sub, mode, rotated)
+                model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}.npy')
+            if not os.path.exists(model_file) or os.path.exists(model_file):
+                model_out = build_model(m, columns, n_voxels, belongs, best_roi_list, sub, mode, rotated)
                 for roi in rois.keys():
                     print(model_out)
                     print(f'{roi}: {model_out.loc[model_out.roi == roi]}')
@@ -50,22 +60,36 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
                 print(f'\t\t\t{m} already exists')
             
 
-def build_model(model, columns, n_voxels, belongs, sub, mode='train', rotated=True): 
+def build_model(model, columns, n_voxels, belongs, best_roi_list, sub, mode='train', rotated=True): 
     model_out = pd.DataFrame(np.zeros((n_voxels, len(columns))), columns=columns, dtype="Float32")
     model_out.var_explained = -np.inf
     model_out["roi"] = belongs
-    model_out["fit_with"] = -1
+  #  model_out["fit_with"] = -1
+    model_out['fit_with'] = best_roi_list  #right? so then I just update when this corresponds to roi name
+    
+    ### load all and collapse?? (maybe I should add that to the original fit script)
+                    ### I dont think I have do to that 
+                    ### Only update model_out when results['bestROI'] is equal to current roi 
+    ### then check the resutst, and do the thing 
     for roi_name, roi_value in rois.items():
         if rotated:
-            fits_ss_file = os.path.join(
+            fits_ss_file = os.path.join(  # so this is one each voxel is doing when sampling form V1
                     fits_dir, 'fits_inversed', sub, f'fits_{sub}_{mode}_{roi_name}_inversed.npy'
                     )
         fits_ss = pd.DataFrame(np.load(fits_ss_file, allow_pickle=True), columns=columns, dtype = "Float32")
         fits_ss["roi"] = belongs   
-        fits_ss["fit_with"] = roi_name
-
+    #    fits_ss["fit_with"] = roi_name if [results['best_roi'] == roi_name] == True else -1 #this wrong
+   #     fits_ss['fit_with'] = best_roi_list
+   #     print(fits_ss['fit_with'])
+    #    print(fits_ss['fit_with'].unique())
+        fits_ss['fit_with'] = roi_name
 
         match model:
+            case 'best_roi_wself':
+                #    fit_mask = model_out.var_explained < fits_ss.var_explained
+                find_best = model_out.fit_with == fits_ss.fit_with 
+                fit_mask = model_out.var_explained < fits_ss.var_explained
+                fit_mask = np.logical_and(find_best, find_best)
             case 'wself':
                 fit_mask = model_out.var_explained < fits_ss.var_explained
             case 'woself':
@@ -80,10 +104,10 @@ def build_model(model, columns, n_voxels, belongs, sub, mode='train', rotated=Tr
             update_fits = fits_ss[fit_mask]
             model_out.update(update_fits)
 
-        model_out['fit_with'] = model_out.groupby(['roi'])['var_explained'].mean().sort_values(ascending=False).index[0]
+      #  model_out['fit_with'] = model_out.groupby(['roi'])['var_explained'].mean().sort_values(ascending=False).index[0]
     return model_out
 
-models = ['woself']
+models = ['best_roi_wself']
 create_models_best(subj_list, sior, rois, models)
 
 
