@@ -145,6 +145,11 @@ def create_rdm(list_subj, mode='averaged'):
             maskdata_rh_path = os.path.join(mask_dir, sub , f'rh.{sub}.testrois.mgz')
             maskdata_rh = nib.load(maskdata_rh_path).get_fdata().squeeze()
 
+            maskdata_lh_short_path = os.path.join(mask_dir, sub, f'lh.short.{sub}.testrois.npy')
+            maskdata_lh_short = np.load(maskdata_lh_short_path).astype(int)
+            maskdata_rh_short_path = os.path.join(mask_dir, sub, f'rh.short.{sub}.testrois.npy')
+            maskdata_rh_short = np.load(maskdata_rh_short_path).astype(int)
+
             lh_indices = np.where((maskdata_lh >= 1) & (maskdata_lh <= 15))[0] 
             rh_indices = np.where((maskdata_rh >= 1) & (maskdata_rh <= 15))[0] 
             # I am storing the indexes of the mask corresponding to our ROIs so I can delete said indexes, without reformatting the whole mask 
@@ -155,6 +160,15 @@ def create_rdm(list_subj, mode='averaged'):
 
          #   maskdata_lh_new = np.delete(maskdata_lh, indices_to_detele_lh)  delete messes it up later on when printing on the surface 
           #  maskdata_rh_new = np.delete(maskdata_rh, indices_to_detele_rh)
+
+            maskdata_lh_short_new = np.delete(maskdata_lh_short, indices_to_detele_lh)
+            maskdata_rh_short_new = np.delete(maskdata_rh_short, indices_to_detele_rh)
+
+            maskdata_lh_short_new_path = os.path.join(mask_dir, sub, f'lh.short.nans.{sub}.testrois.npy')
+            maskdata_rh_short_new_path = os.path.join(mask_dir, sub, f'rh.short.nans.{sub}.testrois.npy')
+
+            np.save(maskdata_lh_short_new_path, maskdata_lh_short_new)
+            np.save(maskdata_rh_short_new_path, maskdata_rh_short_new)
 
             maskdata_lh[indices_to_detele_lh] = 0
             maskdata_rh[indices_to_detele_rh] = 0
