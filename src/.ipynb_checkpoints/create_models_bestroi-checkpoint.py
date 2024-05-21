@@ -6,7 +6,8 @@ from utils.utils import *
 
 
 """
-Not in use right now (07/05)
+Modified version of the create_model file to accomodate for the "bestROI" thingy: 
+We use the result matrix, collapse it over hemi, and then for each subj we know which ROI is better explained by which 
 """
 
 def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True):
@@ -32,6 +33,9 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
 
         models_files = {}
         all_exist = True
+        all_results_file = os.path.join(proj_dir, results, 'results_bestROI_all.npy')
+        all_results = np.load(all_results_file, allow_pickle=True)
+        print(all_results.shape)
         for m in models:
             if rotated:
                 model_file = os.path.join(models_dir, f'best_fits_{m}_{sub}_{mode}_bestroi.npy')
