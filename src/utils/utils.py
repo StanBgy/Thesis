@@ -8,8 +8,8 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-#base_dir  = '/media/Working/stan-thesis/'
-base_dir = '/home/stan/thesis-repo/'
+base_dir  = '/media/Working/stan-thesis/'
+#base_dir = '/home/stan/thesis-repo/'
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
@@ -28,6 +28,7 @@ param_dir = os.path.join(proj_dir, 'stats', 'parametric_test')
 models_dir = os.path.join(proj_dir, 'serialised_models')
 results_dir = os.path.join(proj_dir, 'results')
 dist_dir = os.path.join(proj_dir, 'distances')
+noise_dir = os.path.join(proj_dir, 'noise_ceilling')
 
 
 #nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
@@ -77,7 +78,7 @@ params = {'random': True,
            'method': 'trf'
         }
 
-models = ['wself', 'oself']
+models = [ 'oself', 'best_roi']
 hemis = ['lh', 'rh']
 
 columns = ["x0", "y0", "sigma", "slope", "intercept", "test_var_explained", "var_explained", "mds_ecc", "mds_ang",

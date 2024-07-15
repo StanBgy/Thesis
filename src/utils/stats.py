@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from scipy import stats
 from scipy.sparse import random
 from utils.utils import param_dir
@@ -38,6 +39,9 @@ def rank_correlation(rank_dict):
 
 
 def parametric_test(subj_list, rois, iterations):
+    """
+    Create a 1000 random rotation matrix and compare it to the ouputed one. 
+    """
     for i in range(len(subj_list)):
         param_file_name = os.path.join(param_dir, f'{subj_list[i]}_parametric_test_output.csv')
         if not os.path.exists(param_file_name):
@@ -104,3 +108,35 @@ def wilcoxon_test(subj_list, rois, mode='averaged'):
             p_values_df.iloc[i, j] = res.pvalue
 
     return z_values_df, p_values_df, median_df
+
+def plot_colorcoded(df):
+    """plot color coded tables of a df"""
+    
+    norm = plt.Normalize(df.values.min(), df.values.max())
+
+
+    cmap = plt.get_cmap('RdYlGn')
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    ax.axis('tight')
+    ax.axis('off')
+    
+
+    cell_colors = cmap(norm(df.values))
+    
+ 
+    table = ax.table(cellText=df.values.round(2),
+                     rowLabels=df.index,
+                     colLabels=df.columns,
+                     cellColours=cell_colors,
+                     cellLoc='center',
+                     loc='center')
+    
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(14)
+    table.scale(1.2, 1.2)
+    
+   
+    plt.show()

@@ -12,6 +12,7 @@ from utils.rf_gaussians import gaussian_2d_curve, gaussian_2d_curve_pol
 
 """
 Here, we fit the gaussian curve to each voxel 
+Old model, oself thing, doesnt consider "best sampling space" 
 """
 
 def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
@@ -87,7 +88,7 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
                         except RuntimeError:
                             print(f'VOXEL {voxel}: optimal params not found after {attempt} attempts')
                             attempt + 1
-                print(voxel_fit)
+            
                 fits_roi.loc[voxel] = voxel_fit
 
             def gaus_roi(fits):

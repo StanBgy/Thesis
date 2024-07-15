@@ -12,6 +12,7 @@ from utils.rf_gaussians import gaussian_2d_curve, gaussian_2d_curve_pol
 
 """
 Here, we fit the gaussian curve to each voxel 
+Old model, oself thing, doesnt consider "best sampling space" 
 """
 
 def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
@@ -107,6 +108,7 @@ def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
                 pred_activity_test = np.array([np.array(x) for x in pred_activity_test]).T
                 print(betas_test.shape)
                 print(pred_activity_test.shape)
+                ### Try to rescale ### bound at zero 
                 roi_res_test = np.sum((pred_activity_test - betas_test)**2, axis=0)
                 roi_rot_test = sum((betas_test - np.tile(betas_test.mean(axis=0), (sum(train_test_mask), 1)))**2).T
                 fits_roi["test_var_explained"] = 1 - roi_res_test / roi_rot_test

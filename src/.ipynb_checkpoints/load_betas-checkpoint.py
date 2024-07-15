@@ -39,7 +39,7 @@ def load_betas(subs, sessions, targetspace, mode='averaged', mask=True):
         maskdata_long = np.load(maskdata_file,allow_pickle=True)
         maskdata_long_bool = (maskdata_long > 0)
         maskdata_long_bool
-        conditions = get_conditions(nsd_dir, sub, 2)
+        conditions = get_conditions(nsd_dir, sub, sessions[i])
 
         conditions = np.asarray(conditions).ravel()
         conditions_bool = [

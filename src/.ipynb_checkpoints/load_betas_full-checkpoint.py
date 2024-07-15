@@ -42,7 +42,7 @@ def load_betas_full(subs, sessions, targetspace='nativesurface', mode='train'):
         betas = []
         if os.path.exists(betas_train_file):
             print(f'Betas exists for {sub}')
-            continue
+         #   continue
         for j in range(sessions[i]):
             j += 1
             session_betas_file = os.path.join(nsd_dir, 'full_brain', sub, f'betas_sessions_{j}.npy')

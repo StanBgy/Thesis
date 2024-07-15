@@ -34,7 +34,7 @@ def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False, n_j
             if os.path.exists(fit_file_check):
                 print(f'Something exists for {subj} at chunk {j}, so we assume this was computed already, and we are skiping')
                 continue
-            betas_file = os.path.join(nsd_dir, 'full_brain', subj  , f'{subj}_betas_list_{targetspace}_{mode}_full_{j}.npy') # could parametertize the targetsurface but eh
+            betas_file = os.path.join(nsd_dir, 'full_brain', subj  , f'{subj}_betas_list_{targetspace}_{mode}_full_{j}_fix.npy') # could parametertize the targetsurface but eh
             betas_chunk = np.load(betas_file, allow_pickle=True, mmap_mode='r').astype(np.float32).T  #mmap_mode is super important here
          #   n_betas = betas_chunk.shape[0]
          #   n_voxels += betas_chunk.shape[1]

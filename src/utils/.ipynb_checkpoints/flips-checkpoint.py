@@ -28,7 +28,11 @@ and another one with ranks and their actual values
 """
 
 
-def create_rotation_df(subj, rois, random=True, mode='averaged'):
+def create_rotation_df(subj, rois, random=True, mode='train'):
+    """
+    Use the Kabsch 2D algorithm to find the ideal rotation matrix U between all MDS (and flipped MDS as well)
+    random also add a randomize flip to be able to compare 
+    """
     cols = ['source', 'base', 'target', 'U', 'distance']
     comparisions = (len(rois) * (len(rois)-1)) * 2 
     if random: comparisions += 1 
@@ -122,6 +126,9 @@ def get_ranking(df, return_mean=False, only_filter=False):
 
 
 def get_rank_dict(subj_list, rois, mode='averaged', random=True):
+    """
+    Returns a dictionary and its values of the new rotated MDS's distances to all others, to find the one with the lowest average distance 
+    """
     dict, dict_values = {}, {}
     for i in range(len(subj_list)):
         rotations_df = create_rotation_df(subj=subj_list[i], rois=rois, mode=mode, random=random)
@@ -161,6 +168,7 @@ def get_prefered_xy(subj_list, sessions, fetch_conds=False) -> ndarray:
 
     return a (8, 2) np array containing the rotation for x and y for each subject except 01
 
+    This finds the prefered rotation angles for each subject comparativelty to subj01 (alignment angle to all subject to subj01)
     """
     if fetch_conds:
         for i , sub in enumerate(subj_list):
@@ -201,7 +209,6 @@ def get_prefered_xy(subj_list, sessions, fetch_conds=False) -> ndarray:
         
         mds_V01_s1_new = mds_V01_s1[np.isin(conds1, common_conditions)]
         mds_sub = mds_sub[np.isin(conds_sub, common_conditions)]
-        print(mds_sub)
         U = kabsch2D(mds_V01_s1_new, mds_sub)
         cos_sin[i, 0] = U[0, 0]
         cos_sin[i, 1] = U[1, 0]

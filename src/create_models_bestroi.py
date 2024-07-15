@@ -6,8 +6,11 @@ from utils.utils import *
 
 
 """
-Modified version of the create_model file to accomodate for the "bestROI" thingy: 
+Modified version of the create_model file to accomodate for the "bestROI" model: 
 We use the result matrix, collapse it over hemi, and then for each subj we know which ROI is better explained by which 
+
+Then, the "best_roi" model takes that into account and for each ROI, only save the paramters of the ROI that is the best sampling space 
+This leads us with a model that only takes fitted values from the overall best sampling space 
 """
 
 def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True):
@@ -17,6 +20,17 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
     Then we use these models to get them into the cortical surface """
     all_results_file = os.path.join(proj_dir, 'results', 'results_bestROI_hemis_collapsed.npy')
     all_results = np.load(all_results_file, allow_pickle=True)
+    results_all_subj = np.mean(all_results, axis=0)
+
+    columns = ["x0", "y0", "sigma", "slope", "intercept", "test_var_explained", "var_explained", "mds_ecc", "mds_ang"]
+    results_df = pd.DataFrame(results_all_subj, columns=rois.keys(), index=rois.keys(), dtype=float)
+    results_df['best_roi'] = results_df.idxmax(axis=1)
+
+    # create a dict that stores the maskdata value and the best roi use the result_df we computed above.
+    # Convintent to tell our model where to look (which roi has the best result when sample for which roi)
+    sior_best_roi = {roi_value: best_roi for roi_value, best_roi in zip(sior.keys(), results_df['best_roi'])}
+    
+    
     print(all_results.shape)
     for i, sub in enumerate(subj_list):
         start_sub = time.time()
@@ -32,18 +46,12 @@ def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True
         for j in maskdata:
             belongs.append(sior[j])
 
-        columns = ["x0", "y0", "sigma", "slope", "intercept", "test_var_explained", "var_explained", "mds_ecc", "mds_ang"]
-        results_df = pd.DataFrame(all_results[i], columns=rois.keys(), index=rois.keys(), dtype=float)
-        results_df['best_roi'] = results_df.idxmax(axis=1)
-
-        # create a dict that stores the maskdata value and the best roi use the result_df we computed above.
-        # Convintent to tell our model where to look (which roi has the best result when sample for which roi)
-        sior_best_roi = {roi_value: best_roi for roi_value, best_roi in zip(sior.keys(), results_df['best_roi'])}
-
         # now we can put in a list, for each index, which one is the best 
         best_roi_list = []
         for k in maskdata:
             best_roi_list.append(sior_best_roi[k])
+
+        
         models_files = {}
         all_exist = True
         for m in models:
@@ -85,7 +93,7 @@ def build_model(model, columns, n_voxels, belongs, best_roi_list, sub, mode='tra
         fits_ss['fit_with'] = roi_name
 
         match model:
-            case 'best_roi_wself':
+            case 'best_roi':
                 #    fit_mask = model_out.var_explained < fits_ss.var_explained
                 find_best = model_out.fit_with == fits_ss.fit_with 
                 fit_mask = model_out.var_explained < fits_ss.var_explained
@@ -107,7 +115,7 @@ def build_model(model, columns, n_voxels, belongs, best_roi_list, sub, mode='tra
       #  model_out['fit_with'] = model_out.groupby(['roi'])['var_explained'].mean().sort_values(ascending=False).index[0]
     return model_out
 
-models = ['best_roi_wself']
-create_models_best(subj_list, sior, rois, models)
+models = ['best_roi']
+#create_models_best(subj_list, sior, rois, models)
 
 
