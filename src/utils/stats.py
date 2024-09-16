@@ -93,7 +93,7 @@ def wilcoxon_test(subj_list, rois, mode='averaged'):
 
             # make the data a 1D array : X - Y
             x -= y
-        
+            print(x.shape)
             
            
             # print median of the difference 
