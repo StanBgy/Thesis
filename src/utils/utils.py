@@ -8,8 +8,10 @@ Some needed variables for all scripts
 
 targetspace = 'nativesurface'
 
-base_dir  = '/media/Working/stan-thesis/'
-#base_dir = '/home/stan/thesis-repo/'
+# this is kinda annoying
+#base_dir  = '/media/Working/stan-thesis/'
+base_dir = '/home/stan/thesis-repo/'
+
 
 data_dir = os.path.join(base_dir, 'data')
 mask_dir = os.path.join(data_dir, 'mask')
@@ -31,10 +33,10 @@ dist_dir = os.path.join(proj_dir, 'distances')
 noise_dir = os.path.join(proj_dir, 'noise_ceilling')
 
 
-#nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there. Don't ask
-nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/NSD/') # Now on HDD. Works only during odd months, full moon, and if Jupiter is at a 45 degrees angle with Earth
+#nsd_dir = os.path.join(data_dir, 'NSD') # SSD. Sometimes only works in there.
+#nsd_dir = os.path.join('/media/harveylab/STORAGE1_NA/NSD/') # Our HDD, sometimes was not working for reasons?  
 
-#nsd_dir = os.path.join(data_dir, 'NSD')
+nsd_dir = os.path.join(data_dir, 'NSD')
 
 
 #sessions = [37, 37, 29, 27, 37, 29, 37, 27]

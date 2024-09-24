@@ -34,8 +34,6 @@ def create_rdm(list_subj, mode='averaged'):
         betas_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_{mode}.npy') 
         betas = np.load(betas_file, allow_pickle=True).astype(np.float32)
 
-      #  if np.isnan(betas).any():# drop the full row if there's some nan (so drop the whole voxel)  -> annoying but necessary, otherwise RDM breaks
-       #     betas = betas[~np.isnan(betas).any(axis=1), :]    # This is fine, works as intended 
 
         for mask_name in rois.keys():
             start_mask_name = time.time() 
@@ -58,12 +56,10 @@ def create_rdm(list_subj, mode='averaged'):
                 masked_betas = masked_betas[good_vox, :]
                 print(masked_betas.shape)
 
+                # this is of course not great, I'd advice anyone taking over this to change that and put it in load_betas.py
                 if np.isnan(masked_betas).any():# drop the full row if there's some nan (so drop the whole voxel)  -> annoying but necessary, otherwise RDM breaks
                     masked_betas = masked_betas[~np.isnan(masked_betas).any(axis=1), :]
                     
-                    
-                        # This is fine, works as intended. But this should be done before. 
-                        
 
                 # Transpose needed for correlation distance 
                 X = masked_betas.T
@@ -116,13 +112,18 @@ def create_rdm(list_subj, mode='averaged'):
 
         
         if np.isnan(betas).any():
-              # SUBJ06 AND SUBJ08 Have NaNs for some fucking reason: need to remove and replace. Can't do before because of the masking
+              # SUBJ06 AND SUBJ08 Have NaNs for some  reason: need to remove and replace. Can't do before because of the masking
             # which means I need to change the masks
-            # I know for the hemishpere mask that they have been stack horizontally (its in luis' code) 
+            # The hemishpere masks have been stack horizontally so we use that
             # so if a voxel is below the cutoff, its in LH. if its above, its in RH
+            #
+            # This was quite a time waster, other solution might be preferable
+            #
+            # ++ SUBJ06 and SUBJ08 do quite poorly: removing them entirely is an option, although
+            # the amount of voxels that the code below removes is very low 
+            #
+            # Also yes, this should be in load_betas.py 
 
-            # the amount of hours I have lost because of this messing up my analysis later is more than I can sanely recall 
-            # You can chose to either ditch subj06 or subj08 or ditch your mental health 
             if mode == 'train':
                 betas_test_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_test.npy')  # also do it for test 
                 betas_test = np.load(betas_test_file, allow_pickle=True).astype(np.float32)
@@ -170,11 +171,6 @@ def create_rdm(list_subj, mode='averaged'):
             indices_to_detele_rh = rh_indices[np.isnan(betas[lh_indices.shape[0]:]).any(axis=1)] 
             # lh_indices length is also the number of voxels in LH, so we know which voxel is in which hemi
 
-         #   maskdata_lh_new = np.delete(maskdata_lh, indices_to_detele_lh)  delete messes it up later on when printing on the surface 
-          #  maskdata_rh_new = np.delete(maskdata_rh, indices_to_detele_rh)
-
-    #        maskdata_lh_short_new = np.delete(maskdata_lh_short, indices_to_detele_lh) # I dont think this is correct 
-     #       maskdata_rh_short_new = np.delete(maskdata_rh_short, indices_to_detele_rh)
 
             maskdata_lh_short_new = maskdata_lh_short[~np.isnan(betas[:maskdata_lh_short.shape[0]]).any(axis=1)] # this makes more sense in my mind 
             maskdata_rh_short_new = maskdata_rh_short[~np.isnan(betas[maskdata_lh_short.shape[0]:]).any(axis=1)]
@@ -214,7 +210,8 @@ def create_rdm(list_subj, mode='averaged'):
             ### which is used when computing correlation 
             lh_white_path = os.path.join(label_dir, 'freesurfer', sub, 'surf', 'lh.white')
             rh_white_path = os.path.join(label_dir, 'freesurfer', sub, 'surf', 'rh.white')
-
+            
+            # I think this mess is not used at the end
             lh_white = nib.freesurfer.read_geometry(lh_white_path)
             rh_white = nib.freesurfer.read_geometry(rh_white_path)
 
@@ -260,8 +257,6 @@ def create_rdm(list_subj, mode='averaged'):
             
             np.save(betas_file, betas)
 
-          #  betas = np.nan_to_num(betas, copy=False) #default replacement is 0.0
-          #  np.save(betas_file, betas)
             
 
         print(

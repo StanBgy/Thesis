@@ -13,7 +13,6 @@ def load_betas_full(subs, sessions, targetspace='nativesurface', mode='train'):
     """
     Attempt to get the betas for the whole brain data
 
-    The mode is not implemented yet, since we only use train
 
     Otherwise this code will fetch the betas for each session separately, 
     and then save them in numpy to make life easier 
@@ -22,6 +21,9 @@ def load_betas_full(subs, sessions, targetspace='nativesurface', mode='train'):
     There is probably a way to do this without overloading the RAM that would be worth exploring
     The biggest bottleneck is np.concatenate, so I would explore this if needs be 
     But otherwise, reloading the script is not too much of a hassle since everthing gets saved
+
+
+    If you have enough RAM/storage, you can use the normal script and not call a mask 
     """
     for i, sub in enumerate(subs):
         conditions = get_conditions(nsd_dir, sub, sessions[i])
@@ -132,6 +134,5 @@ def load_betas_full(subs, sessions, targetspace='nativesurface', mode='train'):
 
         
 
-load_betas_full(subj_list, sessions)
 
     

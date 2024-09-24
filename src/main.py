@@ -10,9 +10,15 @@ from utils.utils import *
 mode = "train"
 best_roi = True
 rotated=True
+full_brain = False 
+
 if __name__ == "__main__":
     # First step : get the betas
-    load_betas(subj_list, sessions, targetspace=targetspace, mode=mode, mask=True) # mask=False takes the whole brain
+    if full_brain: 
+        load_betas_full(subj_list, sessions)
+    
+    # we want the not full betas either way for RDM + MDS creation
+    load_betas(subj_list, sessions, targetspace=targetspace, mode=mode)
 
     # Use the betas to create both RDM and MDS 
     create_rdm(subj_list, mode=mode)

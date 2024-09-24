@@ -14,9 +14,14 @@ from utils.rf_gaussians import gaussian_2d_curve, gaussian_2d_curve_pol
 
 """
 Here, we fit the gaussian curve to each voxel 
+But by taking voxel first and then MDS
+
+This require some fancy saving and indexing strategies, so I'd advice against doing it 
+
+I don't think it differs at the end from the other (fit_params) strategy, but I am not sure of that mathematically 
 """
 
-def gaussian_fit(subj_list, rois, params,  mode='averaged'):
+def gaussian_fit_inverse(subj_list, rois, params,  mode='averaged'):
     targetspace = 'nativesurface'
     columns = ["x0", "y0", "sigma", "slope", "intercept"]
     initial = params['initial']
@@ -103,9 +108,9 @@ def gaussian_fit(subj_list, rois, params,  mode='averaged'):
             roi_res = np.sum((pred_activity - betas)**2, axis=0)
             roi_tot = sum((betas- np.tile(betas.mean(axis=0), (n_betas, 1)))**2).T
 
-            
+            # At that point mode will always be train 
             if mode == "train":
-                mds_test = mds[:, train_test_mask]
+                mds_test = mds[:, train_test_mask]  # mds_test is a misleading name: the mds is not create from the test data, but the train data
                 def gaus_roi_test(fits):
                     return gaussian_2d_curve_pol(mds_test, *fits)
                 pred_activity_test = fits_roi.apply(gaus_roi_test, axis=1)
@@ -121,4 +126,4 @@ def gaussian_fit(subj_list, rois, params,  mode='averaged'):
             print(f'file for {roi} has been saved ')
     del betas
 
-gaussian_fit(subj_list, rois, params,  mode="train")
+#gaussian_fit(subj_list, rois, params,  mode="train")
