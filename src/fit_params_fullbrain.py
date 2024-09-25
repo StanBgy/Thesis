@@ -18,6 +18,11 @@ Here, we fit the gaussian curve to each voxel
 """
 
 def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False, n_jobs=12):
+    """
+    Run the Gaussian fitting for the whole brain  
+    Divided in chunk to parallelize it; unsure if it really improves performance
+
+    """
     targetspace = 'nativesurface'
     columns = ["x0", "y0", "sigma", "slope", "intercept"]
     initial = params['initial']
@@ -110,7 +115,6 @@ def gaussian_fit_full(subj_list, rois, params,  mode='averaged', save=False, n_j
                     del fits_roi
                     
 
-                
     
         
 def run_chunk(chunk,   chunk_test, chunk_mask, subj, rois):
@@ -163,5 +167,4 @@ def run_chunk(chunk,   chunk_test, chunk_mask, subj, rois):
                     print(f'\t\tFitted Voxel {voxel} out of {chunk.shape[1]}, elapsed time on {subj}: {time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}' )
             return model_chunk
             
-subj_list.remove('subj01')
 gaussian_fit_full(subj_list, rois, params,  mode="train", n_jobs=6)

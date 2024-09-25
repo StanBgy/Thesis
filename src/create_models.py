@@ -13,7 +13,7 @@ Then, the "best_roi" model takes that into account and for each ROI, only save t
 This leads us with a model that only takes fitted values from the overall best sampling space 
 """
 
-def create_models_best(subj_list, sior, rois, models, mode='train', rotated=True):
+def create_models(subj_list, sior, rois, models, mode='train', rotated=True):
     """
     Take the fitted betas and create a model 
     If split is train we also add the cross validated var_explained to the model
