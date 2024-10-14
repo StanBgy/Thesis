@@ -167,4 +167,4 @@ def run_chunk(chunk,   chunk_test, chunk_mask, subj, rois):
                     print(f'\t\tFitted Voxel {voxel} out of {chunk.shape[1]}, elapsed time on {subj}: {time.strftime("%H:%M:%S", time.gmtime(time.time() - start))}' )
             return model_chunk
             
-gaussian_fit_full(subj_list, rois, params,  mode="train", n_jobs=6)
+#gaussian_fit_full(subj_list, rois, params,  mode="train", n_jobs=6)

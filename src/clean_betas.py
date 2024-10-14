@@ -108,4 +108,4 @@ def clean_betas(subj_list):
             
 
 
-clean_betas(subj_list)
+#clean_betas(subj_list)
