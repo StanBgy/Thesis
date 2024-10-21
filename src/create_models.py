@@ -17,7 +17,10 @@ def create_models(subj_list, sior, rois, models, mode='train', rotated=True):
     """
     Take the fitted betas and create a model 
     If split is train we also add the cross validated var_explained to the model
-    Then we use these models to get them into the cortical surface """
+    Then we use these models to get them into the cortical surface
+    """
+
+
     all_results_file = os.path.join(proj_dir, 'results', 'results_bestROI_hemis_collapsed.npy')
     all_results = np.load(all_results_file, allow_pickle=True)
     results_all_subj = np.mean(all_results, axis=0)

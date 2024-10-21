@@ -21,7 +21,27 @@ This require some fancy saving and indexing strategies, so I'd advice against do
 I don't think it differs at the end from the other (fit_params) strategy, but I am not sure of that mathematically 
 """
 
-def gaussian_fit_inverse(subj_list, rois, params,  mode='averaged'):
+def gaussian_fit_inverse(subj_list, rois, params,  mode='averaged') -> None:
+    """
+
+    Fit a Gaussian function to each voxel
+    Here, we first loop through the voxels, and then the rois
+
+    ------ Input ------- 
+
+    subj_list: list (of subject)
+
+    rois: dict, ROIs and their value (V1 = 1, etc...)
+
+    params: dict, the set of parameters to initialize thefitting. Refer to the manuscript or the utils/utils.py
+    to check and modify the values 
+
+    mode: 'train' or 'averaged': train is for cross validation. 'averaged' was not computed in this project
+
+    ------- Output ------
+    None, we save directly to .npy format
+
+    """
     targetspace = 'nativesurface'
     columns = ["x0", "y0", "sigma", "slope", "intercept"]
     initial = params['initial']

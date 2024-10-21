@@ -8,6 +8,9 @@ from nsddatapaper_rsa.utils.nsd_get_data import get_conditions, get_betas
 
 
 def compute_noise_ceilling(subj_list):
+    """
+    Computes the noise ceilling per voxel
+    """
     for i, subj in enumerate(subj_list):
         train_path = os.path.join(betas_dir, f'{subj}_betas_list_nativesurface_train.npy')
         test_path = os.path.join(betas_dir, f'{subj}_betas_list_nativesurface_test.npy')

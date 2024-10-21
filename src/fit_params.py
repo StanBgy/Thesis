@@ -16,6 +16,26 @@ Old model, oself thing, doesnt consider "best sampling space"
 """
 
 def gaussian_fit(subj_list, rois, params, rotated=False, mode='averaged'):
+    """
+
+    Fit a Gaussian function to each voxel
+    Here, we first loop through the ROIs' MDS, and then each voxel
+
+    ------ Input ------- 
+
+    subj_list: list (of subject)
+
+    rois: dict, ROIs and their value (V1 = 1, etc...)
+
+    params: dict, the set of parameters to initialize thefitting. Refer to the manuscript or the utils/utils.py
+    to check and modify the values 
+
+    mode: 'train' or 'averaged': train is for cross validation. 'averaged' was not computed in this project
+
+    ------- Output ------
+    None, we save directly to .npy format
+
+    """
     targetspace = 'nativesurface'
     columns = ["x0", "y0", "sigma", "slope", "intercept"]
     initial = params['initial']

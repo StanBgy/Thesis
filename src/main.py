@@ -5,12 +5,14 @@ from apply_rotation import apply_rotation
 from fit_params import gaussian_fit
 from fit_params_inverse import gaussian_fit_inverse   
 from create_models import create_models
+from distances_mds import compute_distance
 from utils.utils import *
 
 
 mode = "train"
 rotated=True
 full_brain = False 
+distances = True  # Cange to false if you dont care about the distance/correlation part of the analysis
 
 
 if __name__ == "__main__":
@@ -39,4 +41,7 @@ if __name__ == "__main__":
     # Create model 
     create_models(subj_list, sior, rois, models, mode=mode, rotated=True)
     # Export model stays at a notebook; I think it is better that way 
+    
+    # compute the distances between all fitted voxels' prefered positions 
+    compute_distance(subj_list, rois, sessions, models, hemis)
 
