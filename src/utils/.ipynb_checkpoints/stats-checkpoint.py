@@ -41,6 +41,8 @@ def rank_correlation(rank_dict):
 def parametric_test(subj_list, rois, iterations):
     """
     Create a 1000 random rotation matrix and compare it to the ouputed one. 
+
+    We ended up not using this; but can be useful for further check
     """
     for i in range(len(subj_list)):
         param_file_name = os.path.join(param_dir, f'{subj_list[i]}_parametric_test_output.csv')
@@ -93,7 +95,6 @@ def wilcoxon_test(subj_list, rois, mode='averaged'):
 
             # make the data a 1D array : X - Y
             x -= y
-            print(x.shape)
             
            
             # print median of the difference 
@@ -109,8 +110,12 @@ def wilcoxon_test(subj_list, rois, mode='averaged'):
 
     return z_values_df, p_values_df, median_df
 
+
 def plot_colorcoded(df):
-    """plot color coded tables of a df"""
+    """plot color coded tables of a df
+
+    Not used, but should be used with parametrized sizes
+    """
     
     norm = plt.Normalize(df.values.min(), df.values.max())
 
