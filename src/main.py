@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Apply Rotation 
     if rotated:
-        apply_rotation('VO-1', subj, rois, mode=mode)
+        apply_rotation('VO-1', subj_list, rois, mode=mode)
 
     print('-----Rotation done-------')
 
