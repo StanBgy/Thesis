@@ -98,4 +98,4 @@ def compute_distance(subj_list, rois, sessions, models, hemis) -> None:
                         print(f'\t\tskipping {roi_name} since distances file already exists')
 
 
-compute_distance(subj_list, rois, sessions, models, hemis)
+#compute_distance(subj_list, rois, sessions, models, hemis)

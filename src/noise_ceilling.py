@@ -77,4 +77,3 @@ def rescale(train, test):
     new_train = train_ones @ scale  #make 
     return new_train.T.squeeze(), scale
 
-compute_noise_ceilling(subj_list)

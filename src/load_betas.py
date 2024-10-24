@@ -57,30 +57,17 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
 
         if mode == 'averaged': 
 
-            if not mask: 
-                betas_mean_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_{mode}_full.npy')
-            if mask:
-                betas_mean_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_{mode}.npy') 
+            betas_mean_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_{mode}.npy') 
 
             if not os.path.exists(betas_mean_file):
 
-                if mask:
-                    betas_mean = get_betas(
+                betas_mean = get_betas(
                         nsd_dir, 
                         sub,
                         sessions[i],
                         mask=maskdata_long_bool,
                         targetspace=targetspace,
-                    )
-
-                if not mask:
-                    betas_mean = get_betas(
-                        nsd_dir, 
-                        sub,
-                        1,
-                      #  mask=maskdata_long_bool,
-                        targetspace=targetspace,
-                    )
+                )
                 print(f'concatenating betas for {sub}')
                 betas_mean = np.concatenate(betas_mean, axis=1).astype(np.float32)
 
@@ -101,28 +88,24 @@ def load_betas(subs, sessions, targetspace, mode='averaged'):
         
 
         if mode == "train":
-            if mask:
-                betas_train_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_train.npy')
-                betas_test_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_test.npy')
-                betas_mask_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_train_test_mask.npy')
+            betas_train_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_train.npy')
+            betas_test_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_test.npy')
+            betas_mask_file = os.path.join(betas_dir, f'{sub}_betas_list_{targetspace}_train_test_mask.npy')
 
             if not os.path.exists(betas_train_file) or not os.path.exists(betas_test_file) or not os.path.exists(betas_mask_file):
                 print(f'\t\tcreating training and test split of betas for {sub}')
 
-                if mask:
-                    betas_mean = get_betas(
+                betas_mean = get_betas(
                             nsd_dir,
                             sub,
                             sessions[i],
                             mask=maskdata_long_bool,
                             targetspace=targetspace,
-                            )
+                        )
 
-                
                 print(f'\t\t concatenating betas for {sub}')
 
                 betas_mean = np.concatenate(betas_mean, axis=1).astype(np.float32)
-
 
                 ### Do the splitting
                 betas_train, betas_test, train_test_mask, train_test_conditions = split_conditions(betas_mean, conditions, conditions_sampled)
