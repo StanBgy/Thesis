@@ -17,8 +17,6 @@ distances = True  # Cange to false if you dont care about the distance/correlati
 
 if __name__ == "__main__":
     # First step : get the betas
-    if full_brain: 
-        load_betas_full(subj_list, sessions)
     
     # we want the not full betas either way for RDM + MDS creation
     load_betas(subj_list, sessions, targetspace=targetspace, mode=mode)
@@ -43,5 +41,7 @@ if __name__ == "__main__":
     # Export model stays at a notebook; I think it is better that way 
     
     # compute the distances between all fitted voxels' prefered positions 
-    compute_distance(subj_list, rois, sessions, models, hemis)
+    if distances: 
+        compute_distance(subj_list, rois, sessions, models, hemis)
+
 

@@ -9,8 +9,8 @@ Some needed variables for all scripts
 targetspace = 'nativesurface'
 
 # this is kinda annoying
-#base_dir  = '/media/Working/stan-thesis/'
-base_dir = '/home/stan/thesis-repo/'
+base_dir  = '/media/Working/stan-thesis/'
+#base_dir = '/home/stan/thesis-repo/'
 
 
 data_dir = os.path.join(base_dir, 'data')
