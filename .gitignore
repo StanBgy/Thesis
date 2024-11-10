@@ -3,5 +3,6 @@
 *.zip 
 *.json
 *full_rdm_correlation_betas_train.npy
+
 data/
 projects/

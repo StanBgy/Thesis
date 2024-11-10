@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import subprocess
 
 setup(
     name='thesis',
